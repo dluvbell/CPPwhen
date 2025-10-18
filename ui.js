@@ -1,89 +1,362 @@
 // ui.js
 
+// --- 언어 데이터 관리 ---
+const translations = {
+    en: {
+        pageTitle: "CPP Break-Even Simulator",
+        mainTitle: "CPP Break-Even Simulator",
+        subTitle: "Compare two CPP start dates to find your after-tax break-even point.",
+        darkModeLabel: "Dark Mode",
+        langToggle: "한국어",
+        section1Title: "1. Enter Information",
+        legendBasicInfo: "Basic Information",
+        provinceLabel: "Province of Residence",
+        legendYourInfo: "Your Information",
+        userBirthYearLabel: "Birth Year",
+        userCppAt65Label: "Estimated CPP at 65 (Annual)",
+        cppTooltip: "Search for 'My Service Canada Account' on Google to log in to the official government website and check your estimated CPP pension amount. For security reasons, a direct link is not provided.",
+        legendSpouseInfo: "Spouse's Information",
+        hasSpouseLabel: "Include Spouse's Information",
+        spouseBirthYearLabel: "Spouse's Birth Year",
+        spouseCppAt65Label: "Spouse's Est. CPP at 65 (Annual)",
+        legendOtherIncome: "Other Income (Non-CPP)",
+        otherIncomeDesc: "Manage other sources of income you expect in retirement.",
+        manageIncomeBtn: "[ Manage Other Income ]",
+        legendAssumptions: "Key Assumptions",
+        investmentReturnLabel: "Initial Investment Return (%)",
+        investmentTooltip: "This is the average annual rate of return if you invest the CPP payments received earlier, up until the point you would have started receiving them in the later scenario.",
+        colaLabel: "Cost of Living Adj. (COLA, %)",
+        lifeExpectancyLabel: "Maximum Calculation Age",
+        legendAnalysisScenario: "Analysis Scenario",
+        baseAgeLabel: "Base Age (Start Earlier):",
+        comparisonAgeLabel: "Comparison Age (Start Later):",
+        runAnalysisBtn: "Run Break-Even Analysis",
+        section2Title: "2. Analysis Results",
+        loadingText: "Calculating...",
+        chartTitle: "Break-Even Visualization",
+        toggleTableBtn: "Show Detailed Data Table",
+        exportCsvBtn: "Export to CSV",
+        modalTitle: "Manage Other Income",
+        modalAddTitle: "Add/Edit Income",
+        incomeDescLabel: "Income Type",
+        incomeAmountLabel: "Amount (Annual, Present Value)",
+        incomeStartAgeLabel: "Start Age",
+        incomeEndAgeLabel: "End Age",
+        saveIncomeBtn: "Add/Update",
+        noIncomeAdded: "No other income added.",
+        incomeItemLabel: (p) => `${p.desc}: $${p.amount.toLocaleString()}/year (Age ${p.startAge}-${p.endAge})`,
+        editBtn: "Edit",
+        deleteBtn: "Delete",
+        futureValueStarted: "This income has already started.",
+        futureValueDisplay: (p) => `Est. annual amount at age ${p.age}: $${p.value.toLocaleString()}`,
+        alertBaseAge: "The base age must be earlier than the comparison age.",
+        breakEvenResult: (p) => `The after-tax break-even point between starting at age ${p.baseAge} and ${p.comparisonAge} is approximately age ${p.breakEvenAge}.`,
+        noBreakEvenResult: (p) => `A break-even point is not reached within the expected lifespan (${p.lifeExpectancy}). Starting at age ${p.baseAge} is more advantageous.`,
+        chartLabelOpportunityCost: "After-Tax Opportunity Cost (Target)",
+        chartLabelCumulativeDiff: "Cumulative After-Tax CPP Difference",
+        tableHeaderAge: "Age",
+        tableHeaderAnnualDiff: "Annual Diff.",
+        tableHeaderCumulativeDiff: "Cumulative Diff.",
+        tableHeaderTarget: "Target (Opp. Cost)",
+        tableHeaderRemaining: "Remaining Gap",
+        csvReportTitle: "CPP Optimization Simulator Analysis Report",
+        csvInputInfo: "Input Information",
+        csvProvince: "Province",
+        csvMyBirthYear: "My Birth Year",
+        csvMyCpp: "My CPP at 65",
+        csvSpouseBirthYear: "Spouse Birth Year",
+        csvSpouseCpp: "Spouse CPP at 65",
+        csvInvestReturn: "Investment Return",
+        csvCola: "COLA",
+        csvMaxAge: "Max Calc Age",
+        csvOtherIncome: "Other Income Information",
+        csvIncomeDesc: (p) => `"${p.desc}","$${p.amount} (Present Value)",From age ${p.startAge},To age ${p.endAge},,`,
+        csvDetailHeader: ["Age", "After-Tax CPP (Base)", "After-Tax CPP (Comparison)", "Annual After-Tax CPP Diff", "Cumulative CPP Diff", "After-Tax Opp. Cost (Target)"],
+    },
+    ko: {
+        pageTitle: "CPP 손익분기점 시뮬레이터",
+        mainTitle: "CPP 손익분기점 시뮬레이터",
+        subTitle: "두 개의 CPP 시작 시점을 비교하여, 세후 기준 손익분기점을 찾아보세요.",
+        darkModeLabel: "다크 모드",
+        langToggle: "English",
+        section1Title: "1. 정보 입력",
+        legendBasicInfo: "기본 정보",
+        provinceLabel: "거주 주 (Province)",
+        legendYourInfo: "나의 정보",
+        userBirthYearLabel: "생년 (Birth Year)",
+        userCppAt65Label: "65세 기준 예상 CPP (연간)",
+        cppTooltip: "Google에서 'My Service Canada Account'를 검색하여 공식 정부 웹사이트에 로그인 후, CPP 예상 수령액을 확인하십시오. 보안을 위해 직접 링크는 제공하지 않습니다.",
+        legendSpouseInfo: "배우자 정보",
+        hasSpouseLabel: "배우자 정보 포함",
+        spouseBirthYearLabel: "배우자 생년 (Birth Year)",
+        spouseCppAt65Label: "배우자 65세 기준 예상 CPP (연간)",
+        legendOtherIncome: "기타 소득 (CPP 외)",
+        otherIncomeDesc: "은퇴 후 발생할 다른 소득을 관리합니다.",
+        manageIncomeBtn: "[기타 소득 관리]",
+        legendAssumptions: "핵심 가정",
+        investmentReturnLabel: "초기 투자 수익률 (%)",
+        investmentTooltip: "더 일찍 CPP를 받기 시작했을 때, 그 돈을 더 늦게 받기 시작하는 시점까지 투자했을 경우의 연평균 수익률입니다.",
+        colaLabel: "소득 물가상승률 (COLA, %)",
+        lifeExpectancyLabel: "최대 계산 나이",
+        legendAnalysisScenario: "분석 시나리오",
+        baseAgeLabel: "기준 나이 (더 일찍 시작):",
+        comparisonAgeLabel: "비교 나이 (더 늦게 시작):",
+        runAnalysisBtn: "손익분기점 분석 실행",
+        section2Title: "2. 분석 결과",
+        loadingText: "계산 중입니다...",
+        chartTitle: "손익분기점 시각화",
+        toggleTableBtn: "상세 데이터 표 보기",
+        exportCsvBtn: "CSV로 내보내기",
+        modalTitle: "기타 소득 관리",
+        modalAddTitle: "새 소득 추가",
+        incomeDescLabel: "소득 종류",
+        incomeAmountLabel: "금액 (연간, 현재 가치)",
+        incomeStartAgeLabel: "시작 나이",
+        incomeEndAgeLabel: "종료 나이",
+        saveIncomeBtn: "추가/수정",
+        noIncomeAdded: "추가된 소득이 없습니다.",
+        incomeItemLabel: (p) => `${p.desc}: $${p.amount.toLocaleString()}/년 (${p.startAge}세-${p.endAge}세)`,
+        editBtn: "수정",
+        deleteBtn: "삭제",
+        futureValueStarted: "이미 시작된 소득입니다.",
+        futureValueDisplay: (p) => `${p.age}세 시점 예상 연액: $${p.value.toLocaleString()}`,
+        alertBaseAge: "기준 나이는 비교 나이보다 빨라야 합니다.",
+        breakEvenResult: (p) => `${p.baseAge}세와 ${p.comparisonAge}세 시작 시나리오의 세후 기준 손익분기점은 약 ${p.breakEvenAge}세 입니다.`,
+        noBreakEvenResult: (p) => `예상 수명(${p.lifeExpectancy}세) 내에 손익분기점이 발생하지 않습니다. ${p.baseAge}세 시작이 더 유리합니다.`,
+        chartLabelOpportunityCost: "세후 기회비용 (목표 금액)",
+        chartLabelCumulativeDiff: "세후 CPP 누적 차액",
+        tableHeaderAge: "나이",
+        tableHeaderAnnualDiff: "연간 차액",
+        tableHeaderCumulativeDiff: "누적 차액",
+        tableHeaderTarget: "기회비용(목표)",
+        tableHeaderRemaining: "따라잡아야 할 남은 금액",
+        csvReportTitle: "CPP 최적화 시뮬레이터 분석 리포트",
+        csvInputInfo: "입력된 정보",
+        csvProvince: "거주 주",
+        csvMyBirthYear: "나의 생년",
+        csvMyCpp: "나의 65세 CPP",
+        csvSpouseBirthYear: "배우자 생년",
+        csvSpouseCpp: "배우자 65세 CPP",
+        csvInvestReturn: "초기 투자 수익률",
+        csvCola: "물가상승률(COLA)",
+        csvMaxAge: "최대 계산 나이",
+        csvOtherIncome: "기타 소득 정보",
+        csvIncomeDesc: (p) => `"${p.desc}","$${p.amount} (현재가치)",${p.startAge}세부터,${p.endAge}세까지,,`,
+        csvDetailHeader: ["나이", "세후 CPP (기준년도)", "세후 CPP (비교년도)", "세후 CPP 연간 차액", "CPP 누적 차액", "세후 기회비용(목표)"],
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
-    // UI 요소 가져오기 (이전과 동일)
-    const themeToggle = document.getElementById('theme-toggle');
-    const provinceSelect = document.getElementById('province');
-    const hasSpouseCheckbox = document.getElementById('hasSpouse');
-    const spouseInfoGroup = document.getElementById('spouse-info-group');
-    const manageIncomeBtn = document.getElementById('manage-income-btn');
-    const runBreakEvenBtn = document.getElementById('run-break-even-btn');
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const resultsContainer = document.getElementById('results-container');
-    const breakEvenResultEl = document.getElementById('break-even-result');
-    const breakEvenTextResult = document.getElementById('break-even-text-result');
-    const toggleDetailsBtn = document.getElementById('toggle-details-btn');
-    const detailedTableContainer = document.getElementById('detailed-table-container');
-    const exportCsvBtn = document.getElementById('export-csv-btn');
-    const incomeModal = document.getElementById('income-modal');
-    const closeButton = document.querySelector('.close-button');
-    const saveIncomeBtn = document.getElementById('save-income-btn');
-    const incomeList = document.getElementById('income-list');
-    const incomeIdInput = document.getElementById('income-id');
-    const futureValueDisplay = document.getElementById('future-value-display');
+    // --- UI 요소 및 상태 변수 ---
+    const elements = {
+        themeToggle: document.getElementById('theme-toggle'),
+        langToggle: document.getElementById('lang-toggle'),
+        provinceSelect: document.getElementById('province'),
+        hasSpouseCheckbox: document.getElementById('hasSpouse'),
+        spouseInfoGroup: document.getElementById('spouse-info-group'),
+        manageIncomeBtn: document.getElementById('manage-income-btn'),
+        runBreakEvenBtn: document.getElementById('run-break-even-btn'),
+        loadingIndicator: document.getElementById('loading-indicator'),
+        resultsContainer: document.getElementById('results-container'),
+        breakEvenTextResult: document.getElementById('break-even-text-result'),
+        toggleDetailsBtn: document.getElementById('toggle-details-btn'),
+        detailedTableContainer: document.getElementById('detailed-table-container'),
+        exportCsvBtn: document.getElementById('export-csv-btn'),
+        incomeModal: document.getElementById('income-modal'),
+        closeButton: document.querySelector('.close-button'),
+        saveIncomeBtn: document.getElementById('save-income-btn'),
+        incomeList: document.getElementById('income-list'),
+        incomeIdInput: document.getElementById('income-id'),
+        futureValueDisplay: document.getElementById('future-value-display'),
+        addIncomeForm: document.getElementById('add-income-form')
+    };
     
     let breakEvenChart;
     let otherIncomes = [];
     let lastResultDetails = [];
-    let lastRunInputs = {}; // CSV 내보내기를 위한 입력값 저장
+    let lastRunInputs = {};
+    let currentLanguage = 'en';
 
+    // --- 언어 설정 함수 ---
+    const setLanguage = (lang) => {
+        currentLanguage = lang;
+        localStorage.setItem('language', lang);
+        
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.getAttribute('data-lang-key');
+            if (translations[lang][key]) {
+                el.textContent = translations[lang][key];
+            }
+        });
+
+        document.querySelectorAll('[data-lang-key-tooltip]').forEach(el => {
+            const key = el.getAttribute('data-lang-key-tooltip');
+            if (translations[lang][key]) {
+                el.setAttribute('data-tooltip', translations[lang][key]);
+            }
+        });
+
+        elements.langToggle.textContent = translations[lang].langToggle;
+        
+        // 동적으로 생성되는 UI 요소들 업데이트
+        populateBreakEvenSelects();
+        renderIncomeList();
+        
+        // 차트가 이미 그려져 있다면, 언어 변경 후 다시 그리기
+        if(resultsContainer.classList.contains('hidden') === false) {
+             runAndDisplayBreakEven(false); // Re-run without showing loader
+        }
+    };
+    
+    // --- 초기화 함수 ---
     function initialize() {
         Object.keys(taxData).filter(k => k !== 'FED').forEach(prov => {
-            provinceSelect.innerHTML += `<option value="${prov}">${prov}</option>`;
+            elements.provinceSelect.innerHTML += `<option value="${prov}">${prov}</option>`;
         });
-        provinceSelect.value = 'ON';
+        elements.provinceSelect.value = 'ON';
+        
+        addDefaultIncome();
 
-        themeToggle.addEventListener('change', toggleTheme);
-        hasSpouseCheckbox.addEventListener('change', toggleSpouseInfo);
-        manageIncomeBtn.addEventListener('click', () => incomeModal.classList.remove('hidden'));
-        closeButton.addEventListener('click', () => {
-            incomeModal.classList.add('hidden');
+        // 이벤트 리스너 등록
+        elements.themeToggle.addEventListener('change', toggleTheme);
+        elements.langToggle.addEventListener('click', () => {
+            const newLang = currentLanguage === 'en' ? 'ko' : 'en';
+            setLanguage(newLang);
+        });
+        elements.hasSpouseCheckbox.addEventListener('change', toggleSpouseInfo);
+        elements.manageIncomeBtn.addEventListener('click', () => elements.incomeModal.classList.remove('hidden'));
+        elements.closeButton.addEventListener('click', () => {
+            elements.incomeModal.classList.add('hidden');
             clearIncomeForm();
         });
-        // 수정: 팝업 창 바깥 영역 클릭 시 닫기 기능 추가
-        incomeModal.addEventListener('click', (event) => {
-            if (event.target === incomeModal) {
-                incomeModal.classList.add('hidden');
+        elements.incomeModal.addEventListener('click', (event) => {
+            if (event.target === elements.incomeModal) {
+                elements.incomeModal.classList.add('hidden');
                 clearIncomeForm();
             }
         });
-        saveIncomeBtn.addEventListener('click', saveIncome);
-        incomeList.addEventListener('click', handleIncomeListClick);
-        runBreakEvenBtn.addEventListener('click', runAndDisplayBreakEven);
-        toggleDetailsBtn.addEventListener('click', () => detailedTableContainer.classList.toggle('hidden'));
-        exportCsvBtn.addEventListener('click', () => exportToCsv(lastResultDetails, lastRunInputs));
-        document.getElementById('add-income-form').addEventListener('input', updateFutureValueDisplay);
-
-        addDefaultIncome();
-        populateBreakEvenSelects();
+        elements.saveIncomeBtn.addEventListener('click', saveIncome);
+        elements.incomeList.addEventListener('click', handleIncomeListClick);
+        elements.runBreakEvenBtn.addEventListener('click', () => runAndDisplayBreakEven(true));
+        elements.toggleDetailsBtn.addEventListener('click', () => elements.detailedTableContainer.classList.toggle('hidden'));
+        elements.exportCsvBtn.addEventListener('click', () => exportToCsv(lastResultDetails, lastRunInputs));
+        elements.addIncomeForm.addEventListener('input', updateFutureValueDisplay);
+        
+        // 저장된 테마 및 언어 로드
         loadTheme();
+        const savedLang = localStorage.getItem('language') || 'en';
+        setLanguage(savedLang);
     }
 
-    // ... (toggleTheme, loadTheme, updateChartColors, toggleSpouseInfo, populateBreakEvenSelects 함수는 이전과 동일) ...
-    function toggleTheme() { document.body.classList.toggle('dark-mode', themeToggle.checked); localStorage.setItem('theme', themeToggle.checked ? 'dark' : 'light'); if (breakEvenChart) { updateChartColors(); } }
-    function loadTheme() { const isDark = localStorage.getItem('theme') === 'dark'; themeToggle.checked = isDark; if (isDark) { document.body.classList.add('dark-mode'); } }
-    function updateChartColors() { if (!breakEvenChart) return; const isDarkMode = document.body.classList.contains('dark-mode'); const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'; const textColor = isDarkMode ? '#ecf0f1' : '#333'; breakEvenChart.options.scales.y.ticks.color = textColor; breakEvenChart.options.scales.x.ticks.color = textColor; breakEvenChart.options.scales.y.grid.color = gridColor; breakEvenChart.options.scales.x.grid.color = gridColor; breakEvenChart.options.plugins.legend.labels.color = textColor; breakEvenChart.update(); }
-    function toggleSpouseInfo() { spouseInfoGroup.style.display = hasSpouseCheckbox.checked ? 'block' : 'none'; }
-    function populateBreakEvenSelects() { const baseSelect = document.getElementById('break-even-base'); const compSelect = document.getElementById('break-even-comparison'); for (let age = 60; age <= 70; age++) { baseSelect.innerHTML += `<option value="${age}">${age}세</option>`; compSelect.innerHTML += `<option value="${age}">${age}세</option>`; } baseSelect.value = 61; compSelect.value = 63; }
+    function toggleTheme() { document.body.classList.toggle('dark-mode', elements.themeToggle.checked); localStorage.setItem('theme', elements.themeToggle.checked ? 'dark' : 'light'); if (breakEvenChart) { updateChartColors(); } }
+    function loadTheme() { const isDark = localStorage.getItem('theme') === 'dark'; elements.themeToggle.checked = isDark; if (isDark) { document.body.classList.add('dark-mode'); } }
+    function toggleSpouseInfo() { elements.spouseInfoGroup.style.display = elements.hasSpouseCheckbox.checked ? 'block' : 'none'; }
+    
+    function populateBreakEvenSelects() {
+        const baseSelect = document.getElementById('break-even-base');
+        const compSelect = document.getElementById('break-even-comparison');
+        const currentBaseVal = baseSelect.value;
+        const currentCompVal = compSelect.value;
+        baseSelect.innerHTML = '';
+        compSelect.innerHTML = '';
+        for (let age = 60; age <= 70; age++) {
+            const ageText = currentLanguage === 'ko' ? `${age}세` : `Age ${age}`;
+            baseSelect.innerHTML += `<option value="${age}">${ageText}</option>`;
+            compSelect.innerHTML += `<option value="${age}">${ageText}</option>`;
+        }
+        baseSelect.value = currentBaseVal || 61;
+        compSelect.value = currentCompVal || 63;
+    }
 
-    // ... (renderIncomeList, saveIncome, handleIncomeListClick, clearIncomeForm, updateFutureValueDisplay, addDefaultIncome 함수는 이전과 동일) ...
-    function renderIncomeList() { incomeList.innerHTML = otherIncomes.map(inc => `<div class="income-item" data-id="${inc.id}"><span>${inc.desc}: $${inc.amount.toLocaleString()}/년 (${inc.startAge}세-${inc.endAge}세)</span><div><button type="button" class="edit-btn">수정</button><button type="button" class="delete-btn">삭제</button></div></div>`).join('') || '<p>추가된 소득이 없습니다.</p>'; }
-    function saveIncome() { const id = parseInt(incomeIdInput.value); const newIncome = { desc: document.getElementById('income-desc').value || '기타 소득', amount: parseFloat(document.getElementById('income-amount').value) || 0, startAge: parseInt(document.getElementById('income-start-age').value) || 65, endAge: parseInt(document.getElementById('income-end-age').value) || 100 }; if (id) { const index = otherIncomes.findIndex(inc => inc.id === id); otherIncomes[index] = { ...otherIncomes[index], ...newIncome }; } else { newIncome.id = Date.now(); otherIncomes.push(newIncome); } renderIncomeList(); clearIncomeForm(); }
-    function handleIncomeListClick(e) { if (!e.target.closest('.income-item')) return; const id = parseInt(e.target.closest('.income-item').dataset.id); if (e.target.classList.contains('delete-btn')) { otherIncomes = otherIncomes.filter(inc => inc.id !== id); renderIncomeList(); } else if (e.target.classList.contains('edit-btn')) { const income = otherIncomes.find(inc => inc.id === id); incomeIdInput.value = income.id; document.getElementById('income-desc').value = income.desc; document.getElementById('income-amount').value = income.amount; document.getElementById('income-start-age').value = income.startAge; document.getElementById('income-end-age').value = income.endAge; updateFutureValueDisplay(); } }
-    function clearIncomeForm() { incomeIdInput.value = ''; document.getElementById('add-income-form').reset(); futureValueDisplay.textContent = ''; }
-    function updateFutureValueDisplay() { const amount = parseFloat(document.getElementById('income-amount').value) || 0; const startAge = parseInt(document.getElementById('income-start-age').value); const userBirthYear = parseInt(document.getElementById('userBirthYear').value); const cola = parseFloat(document.getElementById('cola').value) / 100; if (!amount || !startAge || !userBirthYear || isNaN(cola)) { futureValueDisplay.textContent = ''; return; } const yearsToStart = (userBirthYear + startAge) - new Date().getFullYear(); if (yearsToStart <= 0) { futureValueDisplay.textContent = '이미 시작된 소득입니다.'; return; } const futureValue = amount * Math.pow(1 + cola, yearsToStart); futureValueDisplay.textContent = `${startAge}세 시점 예상 연액: $${Math.round(futureValue).toLocaleString()}`; }
-    function addDefaultIncome() { otherIncomes.push({ id: 1, desc: '회사 연금', amount: 60000, startAge: 65, endAge: 100 }); renderIncomeList(); }
+    function renderIncomeList() {
+        const lang = translations[currentLanguage];
+        elements.incomeList.innerHTML = otherIncomes.map(inc => `
+            <div class="income-item" data-id="${inc.id}">
+                <span>${lang.incomeItemLabel(inc)}</span>
+                <div>
+                    <button type="button" class="edit-btn">${lang.editBtn}</button>
+                    <button type="button" class="delete-btn">${lang.deleteBtn}</button>
+                </div>
+            </div>`).join('') || `<p>${lang.noIncomeAdded}</p>`;
+    }
+    
+    function saveIncome() {
+        const id = parseInt(elements.incomeIdInput.value);
+        const newIncome = {
+            desc: document.getElementById('income-desc').value || 'Other Income',
+            amount: parseFloat(document.getElementById('income-amount').value) || 0,
+            startAge: parseInt(document.getElementById('income-start-age').value) || 65,
+            endAge: parseInt(document.getElementById('income-end-age').value) || 100
+        };
+        if (id) {
+            const index = otherIncomes.findIndex(inc => inc.id === id);
+            otherIncomes[index] = { ...otherIncomes[index], ...newIncome };
+        } else {
+            newIncome.id = Date.now();
+            otherIncomes.push(newIncome);
+        }
+        renderIncomeList();
+        clearIncomeForm();
+    }
+
+    function handleIncomeListClick(e) {
+        if (!e.target.closest('.income-item')) return;
+        const id = parseInt(e.target.closest('.income-item').dataset.id);
+        if (e.target.classList.contains('delete-btn')) {
+            otherIncomes = otherIncomes.filter(inc => inc.id !== id);
+            renderIncomeList();
+        } else if (e.target.classList.contains('edit-btn')) {
+            const income = otherIncomes.find(inc => inc.id === id);
+            elements.incomeIdInput.value = income.id;
+            document.getElementById('income-desc').value = income.desc;
+            document.getElementById('income-amount').value = income.amount;
+            document.getElementById('income-start-age').value = income.startAge;
+            document.getElementById('income-end-age').value = income.endAge;
+            updateFutureValueDisplay();
+        }
+    }
+
+    function clearIncomeForm() {
+        elements.incomeIdInput.value = '';
+        elements.addIncomeForm.reset();
+        elements.futureValueDisplay.textContent = '';
+    }
+    
+    function updateFutureValueDisplay() {
+        const amount = parseFloat(document.getElementById('income-amount').value) || 0;
+        const startAge = parseInt(document.getElementById('income-start-age').value);
+        const userBirthYear = parseInt(document.getElementById('userBirthYear').value);
+        const cola = parseFloat(document.getElementById('cola').value) / 100;
+        if (!amount || !startAge || !userBirthYear || isNaN(cola)) {
+            elements.futureValueDisplay.textContent = '';
+            return;
+        }
+        const yearsToStart = (userBirthYear + startAge) - new Date().getFullYear();
+        if (yearsToStart <= 0) {
+            elements.futureValueDisplay.textContent = translations[currentLanguage].futureValueStarted;
+            return;
+        }
+        const futureValue = amount * Math.pow(1 + cola, yearsToStart);
+        elements.futureValueDisplay.textContent = translations[currentLanguage].futureValueDisplay({
+            age: startAge,
+            value: Math.round(futureValue)
+        });
+    }
+
+    function addDefaultIncome() {
+        otherIncomes.push({ id: 1, desc: 'Company Pension', amount: 60000, startAge: 65, endAge: 100 });
+    }
     
     function gatherInputs() {
         return {
-            province: provinceSelect.value,
+            province: elements.provinceSelect.value,
             user: {
                 birthYear: parseInt(document.getElementById('userBirthYear').value),
                 cppAt65: parseFloat(document.getElementById('userCppAt65').value),
                 otherIncomes: otherIncomes
             },
             spouse: {
-                hasSpouse: hasSpouseCheckbox.checked,
+                hasSpouse: elements.hasSpouseCheckbox.checked,
                 birthYear: parseInt(document.getElementById('spouseBirthYear').value),
                 cppAt65: parseFloat(document.getElementById('spouseCppAt65').value)
             },
@@ -93,42 +366,46 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
     
-    async function runAndDisplayBreakEven() {
-        loadingIndicator.classList.remove('hidden');
-        resultsContainer.classList.add('hidden');
-        await new Promise(resolve => setTimeout(resolve, 50));
+    async function runAndDisplayBreakEven(showLoader = true) {
+        if (showLoader) {
+            elements.loadingIndicator.classList.remove('hidden');
+            elements.resultsContainer.classList.add('hidden');
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
         
         const inputs = gatherInputs();
-        lastRunInputs = inputs; // 입력값 저장
+        lastRunInputs = inputs;
         const baseAge = parseInt(document.getElementById('break-even-base').value);
         const comparisonAge = parseInt(document.getElementById('break-even-comparison').value);
         
         if (baseAge >= comparisonAge) {
-            alert('기준 나이는 비교 나이보다 빨라야 합니다.');
-            loadingIndicator.classList.add('hidden');
+            alert(translations[currentLanguage].alertBaseAge);
+            if (showLoader) elements.loadingIndicator.classList.add('hidden');
             return;
         }
 
         const result = runDeterministicBreakEven(baseAge, comparisonAge, inputs);
         lastResultDetails = result.details;
         
-        breakEvenTextResult.textContent = result.breakEvenAge === -1 ?
-            `예상 수명(${inputs.lifeExpectancy}세) 내에 손익분기점이 발생하지 않습니다. ${baseAge}세 시작이 더 유리합니다.` :
-            `${baseAge}세와 ${comparisonAge}세 시작 시나리오의 세후 기준 손익분기점은 약 ${result.breakEvenAge}세 입니다.`;
+        const lang = translations[currentLanguage];
+        elements.breakEvenTextResult.textContent = result.breakEvenAge === -1 ?
+            lang.noBreakEvenResult({ lifeExpectancy: inputs.lifeExpectancy, baseAge: baseAge }) :
+            lang.breakEvenResult({ baseAge: baseAge, comparisonAge: comparisonAge, breakEvenAge: result.breakEvenAge });
 
         displayBreakEvenChart(result.details, result.headStartPot, comparisonAge);
         displayDetailedTable(result.details, baseAge);
         
-        toggleDetailsBtn.classList.remove('hidden');
-        exportCsvBtn.classList.remove('hidden');
-        resultsContainer.classList.remove('hidden');
-        loadingIndicator.classList.add('hidden');
+        elements.toggleDetailsBtn.classList.remove('hidden');
+        elements.exportCsvBtn.classList.remove('hidden');
+        elements.resultsContainer.classList.remove('hidden');
+        if (showLoader) elements.loadingIndicator.classList.add('hidden');
     }
 
     function displayBreakEvenChart(details, headStartPot, lateAge) {
         const isDarkMode = document.body.classList.contains('dark-mode');
         const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
         const textColor = isDarkMode ? '#ecf0f1' : '#333';
+        const lang = translations[currentLanguage];
 
         const ctx = document.getElementById('breakEvenChart').getContext('2d');
         if (breakEvenChart) breakEvenChart.destroy();
@@ -138,12 +415,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels: details.filter(d => d.age >= lateAge).map(d => d.age),
                 datasets: [
                     {
-                        label: '세후 기회비용 (목표 금액)',
+                        label: lang.chartLabelOpportunityCost,
                         data: Array(details.filter(d => d.age >= lateAge).length).fill(headStartPot),
                         borderColor: '#e74c3c', borderDash: [5, 5], pointRadius: 0, fill: false
                     },
                     {
-                        label: '세후 CPP 누적 차액',
+                        label: lang.chartLabelCumulativeDiff,
                         data: details.filter(d => d.age >= lateAge).map(d => d.cumulativeCppDifference),
                         borderColor: '#2ecc71', fill: false, tension: 0.1
                     }
@@ -158,15 +435,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayDetailedTable(details, baseAge) {
+        const lang = translations[currentLanguage];
         let tableHTML = `
             <table>
                 <thead>
                     <tr>
-                        <th>나이</th>
-                        <th>연간 차액</th>
-                        <th>누적 차액</th>
-                        <th>기회비용(목표)</th>
-                        <th>따라잡아야 할 남은 금액</th>
+                        <th>${lang.tableHeaderAge}</th>
+                        <th>${lang.tableHeaderAnnualDiff}</th>
+                        <th>${lang.tableHeaderCumulativeDiff}</th>
+                        <th>${lang.tableHeaderTarget}</th>
+                        <th>${lang.tableHeaderRemaining}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -179,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             tableHTML += `
                 <tr>
-                    <td>${d.age}세</td>
+                    <td>${currentLanguage === 'ko' ? `${d.age}세` : d.age}</td>
                     <td>${annualDiffDisplay}</td>
                     <td>${cumulativeDiffDisplay}</td>
                     <td>$${Math.round(d.potValue).toLocaleString()}</td>
@@ -188,45 +466,39 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
         tableHTML += '</tbody></table>';
-        detailedTableContainer.innerHTML = tableHTML;
-        detailedTableContainer.classList.add('hidden');
+        elements.detailedTableContainer.innerHTML = tableHTML;
+        elements.detailedTableContainer.classList.add('hidden');
     }
+    
+    function updateChartColors() { if (!breakEvenChart) return; const isDarkMode = document.body.classList.contains('dark-mode'); const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'; const textColor = isDarkMode ? '#ecf0f1' : '#333'; breakEvenChart.options.scales.y.ticks.color = textColor; breakEvenChart.options.scales.x.ticks.color = textColor; breakEvenChart.options.scales.y.grid.color = gridColor; breakEvenChart.options.scales.x.grid.color = gridColor; breakEvenChart.options.plugins.legend.labels.color = textColor; breakEvenChart.update(); }
 
-    /**
-     * 상세 데이터를 CSV 파일로 변환하여 다운로드하는 함수 (수정됨)
-     * 입력 정보(Inputs)를 파일 상단에 추가
-     */
     function exportToCsv(details, inputs) {
-        if (!details || details.length === 0 || !inputs) {
-            alert('내보낼 데이터가 없습니다. 먼저 분석을 실행해 주십시오.');
-            return;
-        }
+        if (!details || details.length === 0 || !inputs) return;
         
-        let csvContent = "\uFEFF"; // UTF-8 BOM (엑셀 호환성)
+        const lang = translations[currentLanguage];
+        let csvContent = "\uFEFF";
 
-        // 입력 정보 추가
-        csvContent += "CPP 최적화 시뮬레이터 분석 리포트\n\n";
-        csvContent += "입력된 정보,,,,,\n";
-        csvContent += `거주 주,"${inputs.province}",,,,,\n`;
-        csvContent += `나의 생년,"${inputs.user.birthYear}",,,,,\n`;
-        csvContent += `나의 65세 CPP,"${inputs.user.cppAt65}",,,,,\n`;
+        csvContent += `${lang.csvReportTitle}\n\n`;
+        csvContent += `${lang.csvInputInfo},,,,,\n`;
+        csvContent += `"${lang.csvProvince}","${inputs.province}",,,,,\n`;
+        csvContent += `"${lang.csvMyBirthYear}","${inputs.user.birthYear}",,,,,\n`;
+        csvContent += `"${lang.csvMyCpp}","${inputs.user.cppAt65}",,,,,\n`;
         if (inputs.spouse.hasSpouse) {
-            csvContent += `배우자 생년,"${inputs.spouse.birthYear}",,,,,\n`;
-            csvContent += `배우자 65세 CPP,"${inputs.spouse.cppAt65}",,,,,\n`;
+            csvContent += `"${lang.csvSpouseBirthYear}","${inputs.spouse.birthYear}",,,,,\n`;
+            csvContent += `"${lang.csvSpouseCpp}","${inputs.spouse.cppAt65}",,,,,\n`;
         }
-        csvContent += `초기 투자 수익률,"${inputs.investmentReturn}%",,,,,\n`;
-        csvContent += `물가상승률(COLA),"${inputs.cola}%",,,,,\n`;
-        csvContent += `최대 계산 나이,"${inputs.lifeExpectancy}",,,,,\n`;
+        csvContent += `"${lang.csvInvestReturn}","${inputs.investmentReturn}%",,,,,\n`;
+        csvContent += `"${lang.csvCola}","${inputs.cola}%",,,,,\n`;
+        csvContent += `"${lang.csvMaxAge}","${inputs.lifeExpectancy}",,,,,\n`;
         
-        csvContent += "\n기타 소득 정보,,,,,\n";
+        csvContent += `\n${lang.csvOtherIncome},,,,,\n`;
         inputs.user.otherIncomes.forEach(inc => {
-            csvContent += `"${inc.desc}","$${inc.amount} (현재가치)",${inc.startAge}세부터,${inc.endAge}세까지,,\n`;
+            csvContent += lang.csvIncomeDesc(inc) + "\n";
         });
         
         csvContent += "\n\n";
         
-        // 상세 데이터 표 추가
-        const headers = ["나이", "세후 CPP (기준년도)", "세후 CPP (비교년도)", "세후 CPP 연간 차액", "CPP 누적 차액", "세후 기회비용(목표)"];
+        const headers = lang.csvDetailHeader;
         csvContent += headers.join(",") + "\n";
 
         details.forEach(d => {
