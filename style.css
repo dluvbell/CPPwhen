@@ -62,6 +62,14 @@ header {
     position: relative;
 }
 
+.header-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
 h1 { font-size: 2.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
 h2 { font-size: 1.75rem; font-weight: 600; color: var(--text-primary); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; display: inline-block; margin-top: 2rem; }
 h3 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-top: 1.5rem; }
@@ -120,11 +128,20 @@ button {
 }
 button:hover { background-color: var(--primary-hover-color); transform: translateY(-1px); }
 #run-break-even-btn { width: 100%; padding: 0.8rem; font-size: 1.1rem; }
+#lang-toggle {
+    background-color: var(--secondary-color);
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+#lang-toggle:hover {
+    background-color: var(--secondary-hover-color);
+}
+
 
 .future-value-display { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; height: 1.2em; }
 
 /* --- 다크 모드 토글 스위치 --- */
-.theme-switch-wrapper { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem; }
+.theme-switch-wrapper { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .theme-switch { display: inline-block; height: 24px; position: relative; width: 48px; }
 .theme-switch input { display:none; }
 .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; }
@@ -174,4 +191,5 @@ button.delete-btn { background-color: var(--danger-color); }
     h1 { font-size: 1.8rem; }
     h2 { font-size: 1.5rem; }
     .form-grid-modal { grid-template-columns: 1fr; }
+    .header-controls { flex-direction: column; gap: 1rem; }
 }
