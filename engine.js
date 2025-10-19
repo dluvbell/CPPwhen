@@ -1,3 +1,11 @@
+/**
+ * @project     CPP Break-Even Simulator
+ * @author      dluvbell (https://github.com/dluvbell)
+ * @version     1.3.0
+ * @created     2025-10-19
+ * @description Handles all core financial calculations for the simulator.
+ */
+
 // engine.js
 
 /**
