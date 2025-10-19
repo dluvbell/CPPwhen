@@ -72,6 +72,11 @@ const translations = {
         csvOtherIncome: "Other Income Information",
         csvIncomeDesc: (p) => `"${p.desc}","$${p.amount} (Present Value)",From age ${p.startAge},To age ${p.endAge},,`,
         csvDetailHeader: ["Age", "After-Tax CPP (Base)", "After-Tax CPP (Comparison)", "Annual After-Tax CPP Diff", "Cumulative CPP Diff", "After-Tax Opp. Cost (Target)"],
+        // 면책 조항 텍스트 추가
+        disclaimerTitle: "Disclaimer",
+        disclaimerP1: "This simulator is for informational and educational purposes only.",
+        disclaimerP2: "The results are based on the data provided and simplified assumptions and may not accurately reflect your actual financial situation. This content should not be considered financial, tax, or legal advice.",
+        disclaimerP3: "You must consult with a qualified professional (e.g., CPA, CFP) before making any significant financial decisions.",
     },
     ko: {
         pageTitle: "CPP 손익분기점 시뮬레이터",
@@ -143,6 +148,11 @@ const translations = {
         csvOtherIncome: "기타 소득 정보",
         csvIncomeDesc: (p) => `"${p.desc}","$${p.amount} (현재가치)",${p.startAge}세부터,${p.endAge}세까지,,`,
         csvDetailHeader: ["나이", "세후 CPP (기준년도)", "세후 CPP (비교년도)", "세후 CPP 연간 차액", "CPP 누적 차액", "세후 기회비용(목표)"],
+        // 면책 조항 텍스트 추가
+        disclaimerTitle: "면책 조항",
+        disclaimerP1: "이 시뮬레이터는 정보 제공 및 교육 목적으로만 제작되었습니다.",
+        disclaimerP2: "결과는 제공된 데이터와 단순화된 가정을 기반으로 하며, 실제 재정 상황을 정확하게 반영하지 않을 수 있습니다. 이 내용은 재정적, 세무적 또는 법적 조언으로 간주되어서는 안 됩니다.",
+        disclaimerP3: "중요한 재정 결정을 내리기 전에는 반드시 자격을 갖춘 전문가(CPA, CFP 등)와 상담하시기 바랍니다.",
     }
 };
 
