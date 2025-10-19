@@ -185,6 +185,25 @@ button.delete-btn { background-color: var(--danger-color); }
 #detailed-table-container th { background-color: var(--bg-color); font-weight: 600; }
 #detailed-table-container td:first-child, #detailed-table-container th:first-child { text-align: center; font-weight: 600; }
 
+/* --- Footer (Disclaimer) 스타일 추가 --- */
+footer {
+    border-top: 1px solid var(--border-color);
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+footer h3 {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+footer p {
+    font-size: 0.85rem;
+    max-width: 800px;
+    margin: 0.5rem auto;
+}
+
+
 /* --- 반응형 디자인 --- */
 @media (max-width: 768px) {
     .container { padding: 1rem; }
