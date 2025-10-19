@@ -3,13 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="dluvbell">
     <title data-lang-key="pageTitle">CPP Break-Even Simulator</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <div class="container">
+    <div id="password-modal" class="modal">
+        <div class="modal-content">
+            <h2 data-lang-key="passwordTitle">Enter Password</h2>
+            <p data-lang-key="passwordPrompt">Please enter the password to access the simulator.</p>
+            <input type="password" id="password-input" autofocus>
+            <button id="password-submit-btn" type="button" data-lang-key="passwordSubmitBtn">Access</button>
+            <p id="password-error"></p>
+        </div>
+    </div>
+
+    <div class="container hidden">
         <header>
             <h1 data-lang-key="mainTitle">CPP Break-Even Simulator</h1>
             <p data-lang-key="subTitle">Compare two CPP start dates to find your after-tax break-even point.</p>
@@ -128,6 +139,10 @@
         </main>
 
         <footer>
+            <div class="footer-credits">
+                <p>© 2025 dluvbell. All Rights Reserved.</p>
+                <p data-lang-key="createdBy">Created by <a href="https://github.com/dluvbell" target="_blank" rel="noopener noreferrer">dluvbell</a>.</p>
+            </div>
             <h3 data-lang-key="disclaimerTitle">Disclaimer</h3>
             <p data-lang-key="disclaimerP1">This simulator is for informational and educational purposes only.</p>
             <p data-lang-key="disclaimerP2">The results are based on the data provided and simplified assumptions and may not accurately reflect your actual financial situation. This content should not be considered financial, tax, or legal advice.</p>
@@ -136,7 +151,7 @@
 
     </div>
 
-    <div id="welcome-modal" class="modal">
+    <div id="welcome-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2 data-lang-key="welcomeTitle">Welcome to the CPP Simulator!</h2>
