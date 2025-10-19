@@ -89,10 +89,6 @@ const translations = {
         resultsHeader: "Understanding the Results",
         resultsP1: "<strong>Important:</strong> All key financial values in the results (e.g., Opportunity Cost, Cumulative Difference) are calculated on an <strong>after-tax basis</strong> to reflect the real amount of money you would have.",
         resultsP2: "The detailed table shows key metrics:<br>- <strong>Target (Opp. Cost):</strong> The amount of money gained by taking CPP early and investing it. This is the \"target\" the later, larger CPP payments need to overcome.<br>- <strong>Cumulative Diff.:</strong> The running total of the extra after-tax money you get from starting CPP later.<br>- <strong>The break-even age</strong> is when the 'Cumulative Diff.' first surpasses the 'Target'.",
-        passwordTitle: "Enter Password",
-        passwordPrompt: "Please enter the password to access the simulator.",
-        passwordSubmitBtn: "Access",
-        passwordError: "Incorrect password. Please try again.",
         createdBy: "Created by "
     },
     ko: {
@@ -174,10 +170,6 @@ const translations = {
         resultsHeader: "결과 이해하기",
         resultsP1: "<strong>중요:</strong> 결과에 표시되는 모든 주요 재무 가치(예: 기회비용, 누적 차액)는 실제 수령액을 반영하기 위해 <strong>세후 기준</strong>으로 계산됩니다.",
         resultsP2: "상세 표는 다음과 같은 주요 지표를 보여줍니다:<br>- <strong>목표 (기회비용):</strong> CPP를 일찍 받아 투자함으로써 얻는 금액입니다. 이는 더 늦게 받기 시작하는 더 많은 CPP 연금이 극복해야 할 '목표'입니다.<br>- <strong>누적 차액:</strong> CPP를 늦게 시작함으로써 얻는 추가적인 세후 금액의 누적 합계입니다.<br>- <strong>손익분기점</strong>은 '누적 차액'이 '목표'를 처음으로 넘어서는 나이입니다.",
-        passwordTitle: "비밀번호 입력",
-        passwordPrompt: "계산기를 사용하려면 비밀번호를 입력하세요.",
-        passwordSubmitBtn: "접속하기",
-        passwordError: "비밀번호가 틀렸습니다. 다시 시도하세요.",
         createdBy: "제작자: "
     }
 };
@@ -205,36 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
         futureValueDisplay: document.getElementById('future-value-display'),
         addIncomeForm: document.getElementById('add-income-form'),
         welcomeModal: document.getElementById('welcome-modal'),
-        welcomeCloseButton: document.querySelector('#welcome-modal .close-button'),
-        mainContainer: document.querySelector('.container'),
-        passwordModal: document.getElementById('password-modal'),
-        passwordInput: document.getElementById('password-input'),
-        passwordSubmitBtn: document.getElementById('password-submit-btn'),
-        passwordError: document.getElementById('password-error')
+        welcomeCloseButton: document.querySelector('#welcome-modal .close-button')
     };
-    
-    const CORRECT_PASSWORD = 'password123'; 
     
     let breakEvenChart;
     let otherIncomes = [];
     let lastResultDetails = [];
     let lastRunInputs = {};
     let currentLanguage = 'en';
-
-    const checkPassword = () => {
-        if (elements.passwordInput.value === CORRECT_PASSWORD) {
-            elements.passwordModal.classList.add('hidden');
-            elements.mainContainer.classList.remove('hidden');
-
-            if (!sessionStorage.getItem('welcomeModalShown')) {
-                elements.welcomeModal.classList.remove('hidden');
-                sessionStorage.setItem('welcomeModalShown', 'true');
-            }
-        } else {
-            elements.passwordError.textContent = translations[currentLanguage].passwordError;
-            elements.passwordInput.focus();
-        }
-    };
 
     const setLanguage = (lang) => {
         currentLanguage = lang;
@@ -246,7 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const translation = translations[lang][key];
                 if (typeof translation === 'string') {
                     if (key === 'createdBy') {
-                        el.childNodes[0].nodeValue = translation;
+                        // "Created by " 텍스트 노드만 변경
+                        el.childNodes[0].nodeValue = translation; 
                     } else {
                         el.textContent = translation;
                     }
@@ -285,13 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.provinceSelect.value = 'ON';
         
         addDefaultIncome();
-        
-        elements.passwordSubmitBtn.addEventListener('click', checkPassword);
-        elements.passwordInput.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                checkPassword();
-            }
-        });
 
         elements.welcomeCloseButton.addEventListener('click', () => elements.welcomeModal.classList.add('hidden'));
         elements.welcomeModal.addEventListener('click', (event) => {
@@ -327,6 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTheme();
         const savedLang = localStorage.getItem('language') || 'en';
         setLanguage(savedLang);
+
+        if (!sessionStorage.getItem('welcomeModalShown')) {
+            elements.welcomeModal.classList.remove('hidden');
+            sessionStorage.setItem('welcomeModalShown', 'true');
+        }
     }
 
     function toggleTheme() { document.body.classList.toggle('dark-mode', elements.themeToggle.checked); localStorage.setItem('theme', elements.themeToggle.checked ? 'dark' : 'light'); if (breakEvenChart) { updateChartColors(); } }
