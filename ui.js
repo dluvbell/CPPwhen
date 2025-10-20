@@ -1,8 +1,8 @@
 /**
  * @project     CPP Break-Even Simulator
  * @author      dluvbell (https://github.com/dluvbell)
- * @version     1.3.0
- * @created     2025-10-19
+ * @version     1.5.0
+ * @created     2025-10-20
  * @description Handles all user interface logic, event listeners, and language management.
  */
 
@@ -89,7 +89,9 @@ const translations = {
         resultsHeader: "Understanding the Results",
         resultsP1: "<strong>Important:</strong> All key financial values in the results (e.g., Opportunity Cost, Cumulative Difference) are calculated on an <strong>after-tax basis</strong> to reflect the real amount of money you would have.",
         resultsP2: "The detailed table shows key metrics:<br>- <strong>Target (Opp. Cost):</strong> The amount of money gained by taking CPP early and investing it. This is the \"target\" the later, larger CPP payments need to overcome.<br>- <strong>Cumulative Diff.:</strong> The running total of the extra after-tax money you get from starting CPP later.<br>- <strong>The break-even age</strong> is when the 'Cumulative Diff.' first surpasses the 'Target'.",
-        createdBy: "Created by "
+        createdBy: "Created by ",
+        agreeLabel: "I have read, understood, and agree to the terms above.",
+        confirmBtn: "Confirm"
     },
     ko: {
         pageTitle: "CPP 손익분기점 시뮬레이터",
@@ -170,7 +172,9 @@ const translations = {
         resultsHeader: "결과 이해하기",
         resultsP1: "<strong>중요:</strong> 결과에 표시되는 모든 주요 재무 가치(예: 기회비용, 누적 차액)는 실제 수령액을 반영하기 위해 <strong>세후 기준</strong>으로 계산됩니다.",
         resultsP2: "상세 표는 다음과 같은 주요 지표를 보여줍니다:<br>- <strong>목표 (기회비용):</strong> CPP를 일찍 받아 투자함으로써 얻는 금액입니다. 이는 더 늦게 받기 시작하는 더 많은 CPP 연금이 극복해야 할 '목표'입니다.<br>- <strong>누적 차액:</strong> CPP를 늦게 시작함으로써 얻는 추가적인 세후 금액의 누적 합계입니다.<br>- <strong>손익분기점</strong>은 '누적 차액'이 '목표'를 처음으로 넘어서는 나이입니다.",
-        createdBy: "제작자: "
+        createdBy: "제작자: ",
+        agreeLabel: "위 내용을 모두 읽고 이해했으며, 이에 동의합니다.",
+        confirmBtn: "확인"
     }
 };
 
@@ -178,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const elements = {
         themeToggle: document.getElementById('theme-toggle'),
         langToggle: document.getElementById('lang-toggle'),
+        modalLangToggle: document.getElementById('modal-lang-toggle'),
         provinceSelect: document.getElementById('province'),
         hasSpouseCheckbox: document.getElementById('hasSpouse'),
         spouseInfoGroup: document.getElementById('spouse-info-group'),
@@ -197,7 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
         futureValueDisplay: document.getElementById('future-value-display'),
         addIncomeForm: document.getElementById('add-income-form'),
         welcomeModal: document.getElementById('welcome-modal'),
-        welcomeCloseButton: document.querySelector('#welcome-modal .close-button')
+        welcomeCloseButton: document.querySelector('#welcome-modal .close-button'),
+        disclaimerAgreeCheckbox: document.getElementById('disclaimer-agree'),
+        agreementSection: document.querySelector('.agreement-section'),
+        agreeBtn: document.getElementById('agree-btn')
     };
     
     let breakEvenChart;
@@ -205,6 +213,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastResultDetails = [];
     let lastRunInputs = {};
     let currentLanguage = 'en';
+
+    const handleWelcomeModalClose = () => {
+        if (elements.disclaimerAgreeCheckbox.checked) {
+            elements.welcomeModal.classList.add('hidden');
+        } else {
+            elements.agreementSection.classList.remove('shake');
+            void elements.agreementSection.offsetWidth;
+            elements.agreementSection.classList.add('shake');
+        }
+    };
+
+    const toggleLanguage = () => {
+        const newLang = currentLanguage === 'en' ? 'ko' : 'en';
+        setLanguage(newLang);
+    };
 
     const setLanguage = (lang) => {
         currentLanguage = lang;
@@ -216,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const translation = translations[lang][key];
                 if (typeof translation === 'string') {
                     if (key === 'createdBy') {
-                        // "Created by " 텍스트 노드만 변경
                         el.childNodes[0].nodeValue = translation; 
                     } else {
                         el.textContent = translation;
@@ -240,11 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         elements.langToggle.textContent = translations[lang].langToggle;
+        elements.modalLangToggle.textContent = translations[lang].langToggle;
         
         populateBreakEvenSelects();
         renderIncomeList();
         
-        if(resultsContainer.classList.contains('hidden') === false) {
+        if(elements.resultsContainer && !elements.resultsContainer.classList.contains('hidden')) {
              runAndDisplayBreakEven(false);
         }
     };
@@ -257,18 +280,21 @@ document.addEventListener('DOMContentLoaded', () => {
         
         addDefaultIncome();
 
-        elements.welcomeCloseButton.addEventListener('click', () => elements.welcomeModal.classList.add('hidden'));
+        elements.welcomeCloseButton.addEventListener('click', handleWelcomeModalClose);
         elements.welcomeModal.addEventListener('click', (event) => {
             if (event.target === elements.welcomeModal) {
-                elements.welcomeModal.classList.add('hidden');
+                handleWelcomeModalClose();
             }
         });
-
-        elements.themeToggle.addEventListener('change', toggleTheme);
-        elements.langToggle.addEventListener('click', () => {
-            const newLang = currentLanguage === 'en' ? 'ko' : 'en';
-            setLanguage(newLang);
+        elements.agreeBtn.addEventListener('click', handleWelcomeModalClose);
+        elements.disclaimerAgreeCheckbox.addEventListener('change', () => {
+            elements.agreeBtn.disabled = !elements.disclaimerAgreeCheckbox.checked;
         });
+
+        elements.langToggle.addEventListener('click', toggleLanguage);
+        elements.modalLangToggle.addEventListener('click', toggleLanguage);
+        
+        elements.themeToggle.addEventListener('change', toggleTheme);
         elements.hasSpouseCheckbox.addEventListener('change', toggleSpouseInfo);
         elements.manageIncomeBtn.addEventListener('click', () => elements.incomeModal.classList.remove('hidden'));
         elements.closeButton.addEventListener('click', () => {
@@ -292,10 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedLang = localStorage.getItem('language') || 'en';
         setLanguage(savedLang);
 
-        if (!sessionStorage.getItem('welcomeModalShown')) {
-            elements.welcomeModal.classList.remove('hidden');
-            sessionStorage.setItem('welcomeModalShown', 'true');
-        }
+        elements.welcomeModal.classList.remove('hidden');
     }
 
     function toggleTheme() { document.body.classList.toggle('dark-mode', elements.themeToggle.checked); localStorage.setItem('theme', elements.themeToggle.checked ? 'dark' : 'light'); if (breakEvenChart) { updateChartColors(); } }
