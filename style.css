@@ -17,6 +17,8 @@
     --secondary-hover-color: #5a6268;
     --danger-color: #dc3545;
     --success-color: #28a745;
+    --success-hover-color: #218838;
+    --disabled-color: #ced4da;
     --shadow-color: rgba(0, 0, 0, 0.05);
 }
 
@@ -29,6 +31,9 @@ body.dark-mode {
     --border-color: #495057;
     --primary-color: #0d6efd;
     --primary-hover-color: #3d8bfd;
+    --success-color: #198754;
+    --success-hover-color: #157347;
+    --disabled-color: #495057;
     --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -127,6 +132,14 @@ button {
     transition: background-color 0.2s, transform 0.1s;
 }
 button:hover { background-color: var(--primary-hover-color); transform: translateY(-1px); }
+button:disabled {
+    background-color: var(--disabled-color);
+    cursor: not-allowed;
+    transform: none;
+}
+button:disabled:hover {
+    background-color: var(--disabled-color);
+}
 #run-break-even-btn { width: 100%; padding: 0.8rem; font-size: 1.1rem; }
 #lang-toggle {
     background-color: var(--secondary-color);
@@ -234,6 +247,58 @@ footer p {
 #welcome-modal .modal-content strong {
     color: var(--text-primary);
 }
+#modal-lang-toggle {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background-color: var(--secondary-color);
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+#modal-lang-toggle:hover {
+    background-color: var(--secondary-hover-color);
+}
+.agreement-section {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.agreement-section label {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+.agreement-section input[type="checkbox"] {
+    width: auto;
+    flex-shrink: 0;
+}
+#agree-btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background-color: var(--success-color);
+}
+#agree-btn:hover {
+    background-color: var(--success-hover-color);
+}
+#agree-btn:disabled {
+    background-color: var(--disabled-color);
+    color: var(--text-secondary);
+}
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
 
 /* --- 반응형 디자인 --- */
 @media (max-width: 768px) {
@@ -242,4 +307,8 @@ footer p {
     h2 { font-size: 1.5rem; }
     .form-grid-modal { grid-template-columns: 1fr; }
     .header-controls { flex-direction: column; gap: 1rem; }
+    #modal-lang-toggle {
+        top: 1rem;
+        left: 1rem;
+    }
 }
