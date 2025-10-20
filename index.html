@@ -141,8 +141,9 @@
 
     </div>
 
-    <div id="welcome-modal" class="modal hidden">
+    <div id="welcome-modal" class="modal">
         <div class="modal-content">
+            <button id="modal-lang-toggle" type="button">한국어</button>
             <span class="close-button">&times;</span>
             <h2 data-lang-key="welcomeTitle">Welcome to the CPP Simulator!</h2>
             <p data-lang-key="welcomeP1">
@@ -162,7 +163,12 @@
 
             <h3 data-lang-key="disclaimerTitle">Disclaimer</h3>
             <p data-lang-key="disclaimerP2">The results are based on the data provided and simplified assumptions and may not accurately reflect your actual financial situation. This content should not be considered financial, tax, or legal advice.</p>
-            <p data-lang-key="disclaimerP3">You must consult with a qualified professional (e.g., CPA, CFP) before making any significant financial decisions.</p>
+            
+            <div class="agreement-section">
+                <input type="checkbox" id="disclaimer-agree">
+                <label for="disclaimer-agree" data-lang-key="agreeLabel">I have read, understood, and agree to the terms above.</label>
+            </div>
+            <button id="agree-btn" type="button" data-lang-key="confirmBtn" disabled>Confirm</button>
         </div>
     </div>
 
