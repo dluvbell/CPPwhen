@@ -1,23 +1,21 @@
 /**
  * @project     CPP Break-Even Simulator
  * @author      dluvbell (https://github.com/dluvbell)
- * @version     1.3.0
- * @created     2025-10-19
+ * @version     1.8.1
+ * @created     2025-10-20
  * @description Handles all core financial calculations for the simulator.
  */
 
 // engine.js
 
 /**
- * 특정 소득에 대한 세금을 계산하는 함수 (최종 수정 버전)
+ * 특정 소득에 대한 세금을 계산하는 함수
  */
 function calculateTax(income, age, taxBrackets, taxCredits) {
     if (income <= 0) return 0;
-
     let tax = 0;
     let lastLimit = 0;
 
-    // 1. 소득 구간별 세금 계산
     for (const bracket of taxBrackets) {
         const upperLimit = bracket.upTo || Infinity;
         if (income > upperLimit) {
@@ -28,29 +26,26 @@ function calculateTax(income, age, taxBrackets, taxCredits) {
         }
         lastLimit = upperLimit;
     }
-
-    // 2. 비환급성 세액 공제 계산
+    
     let totalCreditBase = taxCredits.bpa;
     if (age >= 65) totalCreditBase += taxCredits.ageAmount || 0;
     
     const creditAmount = totalCreditBase * taxBrackets[0].rate;
-    
     tax = Math.max(0, tax - creditAmount);
     return tax;
 }
 
 
 /**
- * 특정 연도의 최종 세후 소득과 세후 CPP를 계산하는 핵심 함수
+ * 특정 연도의 세후 CPP와 총 세후 소득을 계산하는 함수
  */
-function calculateYearlyIncome(person, spouse, year, personCppStartAge, spouseCppStartAge, inputs) {
+function calculateYearlyAfterTaxCpp(person, spouse, year, personCppStartAge, spouseCppStartAge, inputs) {
     const personAge = year - person.birthYear;
     const spouseAge = spouse.hasSpouse ? year - spouse.birthYear : 0;
-    const baseYear = 2025; // 데이터 기준 연도
+    const baseYear = 2025;
     const yearsSinceBase = year - baseYear;
     const generalColaMultiplier = Math.pow(1 + inputs.cola / 100, yearsSinceBase);
 
-    // --- 1. COLA가 적용된 연간 기준액 계산 ---
     const adjustedOasClawbackThreshold = govBenefitsData.OAS.clawbackThreshold * generalColaMultiplier;
     const adjustedGisThreshold = (spouse.hasSpouse ? govBenefitsData.GIS.incomeThresholdCouple : 22440) * generalColaMultiplier;
     const adjustedMaxGis = govBenefitsData.GIS.maxPaymentPerPerson2025 * (spouse.hasSpouse ? 2 : 1) * generalColaMultiplier;
@@ -59,7 +54,6 @@ function calculateYearlyIncome(person, spouse, year, personCppStartAge, spouseCp
     const adjustedFedBrackets = taxData.FED.brackets.map(b => ({ ...b, upTo: b.upTo ? b.upTo * generalColaMultiplier : undefined }));
     const adjustedProvBrackets = taxData[inputs.province].brackets.map(b => ({ ...b, upTo: b.upTo ? b.upTo * generalColaMultiplier : undefined }));
 
-    // --- 2. 모든 세전 소득 항목 계산 ---
     let personCppPayment = 0;
     if (personAge >= personCppStartAge) {
         const monthsDiff = (personCppStartAge - 65) * 12;
@@ -125,72 +119,96 @@ function calculateYearlyIncome(person, spouse, year, personCppStartAge, spouseCp
 
     const personIncomeWithoutCpp = personPreTaxTotal - personCppPayment;
     const spouseIncomeWithoutCpp = spousePreTaxTotal - spouseCppPayment;
-
     const personTaxWithoutCpp = calculateTax(personIncomeWithoutCpp, personAge, adjustedProvBrackets, provTaxCredits) + calculateTax(personIncomeWithoutCpp, personAge, adjustedFedBrackets, fedTaxCredits);
     const spouseTaxWithoutCpp = spouse.hasSpouse ? calculateTax(spouseIncomeWithoutCpp, spouseAge, adjustedProvBrackets, provTaxCredits) + calculateTax(spouseIncomeWithoutCpp, spouseAge, adjustedFedBrackets, fedTaxCredits) : 0;
     const householdTaxWithoutCpp = personTaxWithoutCpp + spouseTaxWithoutCpp;
 
     const taxOnCpp = householdTaxWithCpp - householdTaxWithoutCpp;
-
     const householdAfterTaxCpp = householdPreTaxCpp - taxOnCpp;
+
+    const totalAfterTaxIncome = (personPreTaxTotal + spousePreTaxTotal) - householdTaxWithCpp;
     
-    return { householdAfterTaxCpp };
+    return { householdAfterTaxCpp, totalAfterTaxIncome };
 }
 
-
 /**
- * 손익분기점을 계산하는 유일한 메인 함수
+ * 손익분기점을 계산하는 메인 함수
  */
 function runDeterministicBreakEven(baseAge, comparisonAge, inputs) {
     const earlyAge = Math.min(baseAge, comparisonAge);
     const lateAge = Math.max(baseAge, comparisonAge);
-    
-    let headStartPot = 0;
-    let detailedData = [];
+    const investmentReturn = inputs.investmentReturn / 100;
+    const earlyCppInvestmentRate = inputs.earlyCppInvestmentRate / 100;
 
+    let simple_target = 0;
     for (let age = earlyAge; age < lateAge; age++) {
         const year = inputs.user.birthYear + age;
-        const result = calculateYearlyIncome(inputs.user, inputs.spouse, year, earlyAge, earlyAge, inputs);
-        headStartPot = headStartPot * (1 + inputs.investmentReturn / 100) + result.householdAfterTaxCpp;
+        const result = calculateYearlyAfterTaxCpp(inputs.user, inputs.spouse, year, earlyAge, earlyAge, inputs);
+        if (result && typeof result.householdAfterTaxCpp === 'number') {
+            const investableAmount = result.householdAfterTaxCpp * earlyCppInvestmentRate;
+            simple_target = simple_target * (1 + investmentReturn) + investableAmount;
+        }
     }
 
-    let cumulativeCppDifference = 0;
+    let detailedData = [];
+    let totalAfterTaxIncomeBase = 0;
+    let totalAfterTaxIncomeComparison = 0;
+    
+    let earlyStartPot_FV = 0;
+    let lateStartPot_FV = 0;
+    let simple_cumulativeDifference = 0;
+    
     let breakEvenAge = -1;
 
     for (let age = earlyAge; age <= inputs.lifeExpectancy; age++) {
         const year = inputs.user.birthYear + age;
+
+        earlyStartPot_FV *= (1 + investmentReturn);
+        lateStartPot_FV *= (1 + investmentReturn);
+
+        const earlyResult = calculateYearlyAfterTaxCpp(inputs.user, inputs.spouse, year, earlyAge, earlyAge, inputs);
+        totalAfterTaxIncomeBase += earlyResult.totalAfterTaxIncome || 0;
         
-        const earlyResult = calculateYearlyIncome(inputs.user, inputs.spouse, year, earlyAge, earlyAge, inputs);
         const lateResult = (age >= lateAge) 
-            ? calculateYearlyIncome(inputs.user, inputs.spouse, year, lateAge, lateAge, inputs)
-            : { householdAfterTaxCpp: 0 };
+            ? calculateYearlyAfterTaxCpp(inputs.user, inputs.spouse, year, lateAge, lateAge, inputs)
+            : { householdAfterTaxCpp: 0, totalAfterTaxIncome: (earlyResult.totalAfterTaxIncome || 0) - (earlyResult.householdAfterTaxCpp || 0) };
+        totalAfterTaxIncomeComparison += lateResult.totalAfterTaxIncome || 0;
         
-        const annualCppDifference = lateResult.householdAfterTaxCpp - earlyResult.householdAfterTaxCpp;
+        const annualCppDifference = (lateResult.householdAfterTaxCpp || 0) - (earlyResult.householdAfterTaxCpp || 0);
         
-        if (age >= lateAge) {
-            cumulativeCppDifference += annualCppDifference;
+        if (age < lateAge) {
+            const investableAmount = (earlyResult.householdAfterTaxCpp || 0) * earlyCppInvestmentRate;
+            earlyStartPot_FV += investableAmount;
+        } else {
+            lateStartPot_FV += annualCppDifference;
+            simple_cumulativeDifference += annualCppDifference;
+        }
+
+        if (breakEvenAge === -1 && age >= lateAge && lateStartPot_FV >= earlyStartPot_FV) {
+            const prevLateStartPot_FV = (lateStartPot_FV - annualCppDifference) / (1 + investmentReturn);
+            const prevEarlyStartPot_FV = earlyStartPot_FV / (1 + investmentReturn);
+            const gapAtStartOfYear = prevEarlyStartPot_FV - prevLateStartPot_FV;
+            const gainDuringYear = (lateStartPot_FV - prevLateStartPot_FV) - (earlyStartPot_FV - prevEarlyStartPot_FV);
+            const fractionOfYear = gainDuringYear > 0 ? gapAtStartOfYear / gainDuringYear : 0;
+            breakEvenAge = (age - 1) + fractionOfYear;
         }
 
         detailedData.push({
             age: age,
-            earlyAfterTaxCpp: earlyResult.householdAfterTaxCpp,
-            lateAfterTaxCpp: lateResult.householdAfterTaxCpp,
-            annualCppDifference: annualCppDifference,
-            potValue: headStartPot,
-            cumulativeCppDifference: cumulativeCppDifference
+            earlyPotValue: earlyStartPot_FV,
+            latePotValue: lateStartPot_FV,
+            simple_target: simple_target,
+            simple_cumulativeDifference: simple_cumulativeDifference
         });
-
-        if (breakEvenAge === -1 && age >= lateAge && cumulativeCppDifference >= headStartPot) {
-            const prevCumulativeDiff = cumulativeCppDifference - annualCppDifference;
-            const diffNeeded = headStartPot - prevCumulativeDiff;
-            const fractionOfYear = annualCppDifference > 0 ? diffNeeded / annualCppDifference : 0;
-            breakEvenAge = (age - 1) + fractionOfYear;
-        }
     }
+    
+    const finalEstateValueDifference = lateStartPot_FV - earlyStartPot_FV;
 
     return {
         breakEvenAge: breakEvenAge === -1 ? -1 : Math.round(breakEvenAge * 10) / 10,
-        headStartPot: headStartPot,
-        details: detailedData
+        details: detailedData,
+        totalAfterTaxIncomeBase,
+        totalAfterTaxIncomeComparison,
+        finalEstateValueDifference
     };
 }
