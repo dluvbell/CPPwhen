@@ -1,7 +1,7 @@
 /**
  * @project     CPP Break-Even Simulator
  * @author      dluvbell (https://github.com/dluvbell)
- * @version     1.8.1
+ * @version     1.9.1
  * @created     2025-10-20
  * @description Handles all user interface logic, event listeners, and language management.
  */
@@ -428,10 +428,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 ]
             },
-            options: { responsive: true, scales: {
-                    y: { ticks: { color: textColor, callback: v => '$' + v.toLocaleString() }, grid: { color: gridColor } },
+            options: { 
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: { ticks: { color: textColor, callback: v => '$' + Math.round(v).toLocaleString() }, grid: { color: gridColor } },
                     x: { ticks: { color: textColor }, grid: { color: gridColor } }
-                }, plugins: { legend: { labels: { color: textColor } } }
+                }, 
+                plugins: { 
+                    legend: { labels: { color: textColor } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
             }
         });
     }
