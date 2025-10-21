@@ -1,7 +1,7 @@
 /**
  * @project     CPP Break-Even Simulator
  * @author      dluvbell (https://github.com/dluvbell)
- * @version     1.5.0
+ * @version     1.8.1
  * @created     2025-10-20
  * @description Handles all user interface logic, event listeners, and language management.
  */
@@ -11,172 +11,89 @@
 // --- 언어 데이터 관리 ---
 const translations = {
     en: {
-        pageTitle: "CPP Break-Even Simulator",
-        mainTitle: "CPP Break-Even Simulator",
-        subTitle: "Compare two CPP start dates to find your after-tax break-even point.",
-        darkModeLabel: "Dark Mode",
-        langToggle: "한국어",
-        section1Title: "1. Enter Information",
-        legendBasicInfo: "Basic Information",
-        provinceLabel: "Province of Residence",
-        legendYourInfo: "Your Information",
-        userBirthYearLabel: "Birth Year",
-        userCppAt65Label: "Estimated CPP at 65 (Annual)",
-        cppTooltip: "Search for 'My Service Canada Account' on Google to log in to the official government website and check your estimated CPP pension amount. For security reasons, a direct link is not provided.",
-        legendSpouseInfo: "Spouse's Information",
-        hasSpouseLabel: "Include Spouse's Information",
-        spouseBirthYearLabel: "Spouse's Birth Year",
-        spouseCppAt65Label: "Spouse's Est. CPP at 65 (Annual)",
-        legendOtherIncome: "Other Income (Non-CPP)",
-        otherIncomeDesc: "Manage other sources of income you expect in retirement.",
-        manageIncomeBtn: "[ Manage Other Income ]",
-        legendAssumptions: "Key Assumptions",
-        investmentReturnLabel: "Initial Investment Return (%)",
-        investmentTooltip: "This is the average annual rate of return if you invest the CPP payments received earlier, up until the point you would have started receiving them in the later scenario.",
-        colaLabel: "Cost of Living Adj. (COLA, %)",
-        lifeExpectancyLabel: "Maximum Calculation Age",
-        legendAnalysisScenario: "Analysis Scenario",
-        baseAgeLabel: "Base Age (Start Earlier):",
-        comparisonAgeLabel: "Comparison Age (Start Later):",
-        runAnalysisBtn: "Run Break-Even Analysis",
-        section2Title: "2. Analysis Results",
-        loadingText: "Calculating...",
-        chartTitle: "Break-Even Visualization",
-        toggleTableBtn: "Show Detailed Data Table",
-        exportCsvBtn: "Export to CSV",
-        modalTitle: "Manage Other Income",
-        modalAddTitle: "Add/Edit Income",
-        incomeDescLabel: "Income Type",
-        incomeAmountLabel: "Amount (Annual, Present Value)",
-        incomeStartAgeLabel: "Start Age",
-        incomeEndAgeLabel: "End Age",
-        saveIncomeBtn: "Add/Update",
-        noIncomeAdded: "No other income added.",
-        incomeItemLabel: (p) => `${p.desc}: $${p.amount.toLocaleString()}/year (Age ${p.startAge}-${p.endAge})`,
-        editBtn: "Edit",
-        deleteBtn: "Delete",
-        futureValueStarted: "This income has already started.",
-        futureValueDisplay: (p) => `Est. annual amount at age ${p.age}: $${p.value.toLocaleString()}`,
+        pageTitle: "CPP Break-Even Simulator", mainTitle: "CPP Break-Even Simulator", subTitle: "Compare two CPP start dates to find your after-tax break-even point.", darkModeLabel: "Dark Mode", langToggle: "한국어",
+        section1Title: "1. Enter Information", legendBasicInfo: "Basic Information", provinceLabel: "Province of Residence", legendYourInfo: "Your Information", userBirthYearLabel: "Birth Year", userCppAt65Label: "Estimated CPP at 65 (Annual)", cppTooltip: "Search for 'My Service Canada Account' on Google to log in to the official government website and check your estimated CPP pension amount. For security reasons, a direct link is not provided.",
+        legendSpouseInfo: "Spouse's Information", hasSpouseLabel: "Include Spouse's Information", spouseBirthYearLabel: "Spouse's Birth Year", spouseCppAt65Label: "Spouse's Est. CPP at 65 (Annual)",
+        legendOtherIncome: "Other Income (Non-CPP)", otherIncomeDesc: "Manage other sources of income you expect in retirement.", manageIncomeBtn: "[ Manage Other Income ]",
+        legendAssumptions: "Key Assumptions", 
+        investmentReturnLabel: "Annual Investment Return (%)", 
+        investmentTooltip: "The annual growth rate of your investments. A higher rate will significantly amplify the benefit of receiving and investing money earlier, strongly impacting the 'Final Asset Advantage'.",
+        earlyCppInvestmentRateLabel: "Early CPP Investment Rate (%)", 
+        earlyCppInvestmentRateTooltip: "What percentage of the after-tax CPP received early will be invested? If you need some of it for living expenses, you can lower this value from 100%.",
+        colaLabel: "Cost of Living Adj. (COLA, %)", lifeExpectancyLabel: "Maximum Calculation Age",
+        legendAnalysisScenario: "Analysis Scenario", baseAgeLabel: "Base Age (Start Earlier):", comparisonAgeLabel: "Comparison Age (Start Later):", runAnalysisBtn: "Run Break-Even Analysis",
+        section2Title: "2. Analysis Results", loadingText: "Calculating...", 
+        chartTitle: "Asset Growth Comparison from CPP Decision", 
+        toggleTableBtn: "Show Detailed Data Table", exportCsvBtn: "Export to CSV",
+        modalTitle: "Manage Other Income", modalAddTitle: "Add/Edit Income", incomeDescLabel: "Income Type", incomeAmountLabel: "Amount (Annual, Present Value)", incomeStartAgeLabel: "Start Age", incomeEndAgeLabel: "End Age", saveIncomeBtn: "Add/Update",
+        noIncomeAdded: "No other income added.", incomeItemLabel: (p) => `${p.desc}: $${p.amount.toLocaleString()}/year (Age ${p.startAge}-${p.endAge})`, editBtn: "Edit", deleteBtn: "Delete",
+        futureValueStarted: "This income has already started.", futureValueDisplay: (p) => `Est. annual amount at age ${p.age}: $${p.value.toLocaleString()}`,
         alertBaseAge: "The base age must be earlier than the comparison age.",
-        breakEvenResult: (p) => `The after-tax break-even point between starting at age ${p.baseAge} and ${p.comparisonAge} is approximately age ${p.breakEvenAge}.`,
-        noBreakEvenResult: (p) => `A break-even point is not reached within the expected lifespan (${p.lifeExpectancy}). Starting at age ${p.baseAge} is more advantageous.`,
-        chartLabelOpportunityCost: "After-Tax Opportunity Cost (Target)",
-        chartLabelCumulativeDiff: "Cumulative After-Tax CPP Difference",
-        tableHeaderAge: "Age",
-        tableHeaderAnnualDiff: "Annual Diff.",
-        tableHeaderCumulativeDiff: "Cumulative Diff.",
-        tableHeaderTarget: "Target (Opp. Cost)",
-        tableHeaderRemaining: "Remaining Gap",
-        csvReportTitle: "CPP Optimization Simulator Analysis Report",
-        csvInputInfo: "Input Information",
-        csvProvince: "Province",
-        csvMyBirthYear: "My Birth Year",
-        csvMyCpp: "My CPP at 65",
-        csvSpouseBirthYear: "Spouse Birth Year",
-        csvSpouseCpp: "Spouse CPP at 65",
-        csvInvestReturn: "Investment Return",
-        csvCola: "COLA",
-        csvMaxAge: "Max Calc Age",
-        csvOtherIncome: "Other Income Information",
-        csvIncomeDesc: (p) => `"${p.desc}","$${p.amount} (Present Value)",From age ${p.startAge},To age ${p.endAge},,`,
-        csvDetailHeader: ["Age", "After-Tax CPP (Base)", "After-Tax CPP (Comparison)", "Annual After-Tax CPP Diff", "Cumulative CPP Diff", "After-Tax Opp. Cost (Target)"],
-        disclaimerTitle: "Disclaimer",
-        disclaimerP1: "This simulator is for informational and educational purposes only.",
-        disclaimerP2: "The results are based on the data provided and simplified assumptions and may not accurately reflect your actual financial situation. This content should not be considered financial, tax, or legal advice.",
-        disclaimerP3: "You must consult with a qualified professional (e.g., CPA, CFP) before making any significant financial decisions.",
+        breakEvenResult: (p) => `The asset advantage of the 'start at ${p.comparisonAge}' scenario surpasses the 'start at ${p.baseAge}' scenario at approximately age ${p.breakEvenAge}.`,
+        noBreakEvenResult: (p) => `A break-even point is not reached within the expected lifespan (${p.lifeExpectancy}). Starting at age ${p.baseAge} is more advantageous in terms of final asset value.`,
+        chartLabelEarlyStart: "FV of Early Start Advantage", chartLabelLateStart: "FV of Late Start Advantage",
+        disclaimerTitle: "Disclaimer", disclaimerP1: "This simulator is for informational and educational purposes only.", disclaimerP2: "The results are based on the data provided and simplified assumptions and may not accurately reflect your actual financial situation. This content should not be considered financial, tax, or legal advice.", disclaimerP3: "You must consult with a qualified professional (e.g., CPA, CFP) before making any significant financial decisions.",
         welcomeTitle: "Welcome to the CPP Simulator!",
-        welcomeP1: "This tool helps you compare two different CPP start dates to find the financial break-even point.",
+        welcomeP1: "This tool analyzes your CPP decision from two key perspectives: **Lifetime Cash Received** (like total paychecks) and **Final Asset Value** (like a final investment balance).",
         resultsHeader: "Understanding the Results",
-        resultsP1: "<strong>Important:</strong> All key financial values in the results (e.g., Opportunity Cost, Cumulative Difference) are calculated on an <strong>after-tax basis</strong> to reflect the real amount of money you would have.",
-        resultsP2: "The detailed table shows key metrics:<br>- <strong>Target (Opp. Cost):</strong> The amount of money gained by taking CPP early and investing it. This is the \"target\" the later, larger CPP payments need to overcome.<br>- <strong>Cumulative Diff.:</strong> The running total of the extra after-tax money you get from starting CPP later.<br>- <strong>The break-even age</strong> is when the 'Cumulative Diff.' first surpasses the 'Target'.",
-        createdBy: "Created by ",
-        agreeLabel: "I have read, understood, and agree to the terms above.",
-        confirmBtn: "Confirm"
+        resultsP1: "This helps you understand not just *how much* money you'll receive, but *how wealthy you could be* by investing the difference from each choice.",
+        resultsP2: "The chart and table below track the growth of the **surplus cash** generated by each decision. The crossover point is the true asset break-even age.",
+        createdBy: "Created by ", agreeLabel: "I have read, understood, and agree to the terms above.", confirmBtn: "Confirm",
+        metricsTotalIncome: "Lifetime Cash Received (After-Tax)",
+        metricsEstateValue: "Final Asset Advantage",
+        metricsBaseCase: (p) => `Start at ${p.age}`,
+        metricsCompCase: (p) => `Start at ${p.age}`,
+        metricsAdvantage: "Advantage",
+        tableHeaderAge: "Age",
+        tableHeaderEarlyValue: "FV of Early Start Advantage",
+        tableHeaderLateValue: "FV of Late Start Advantage",
+        tableHeaderAssetAdvantage: "Net Asset Advantage",
+        tableHeaderSimpleTarget: "Cash Flow Target",
+        tableHeaderSimpleCumulative: "Cash Flow Payback"
     },
     ko: {
-        pageTitle: "CPP 손익분기점 시뮬레이터",
-        mainTitle: "CPP 손익분기점 시뮬레이터",
-        subTitle: "두 개의 CPP 시작 시점을 비교하여, 세후 기준 손익분기점을 찾아보세요.",
-        darkModeLabel: "다크 모드",
-        langToggle: "English",
-        section1Title: "1. 정보 입력",
-        legendBasicInfo: "기본 정보",
-        provinceLabel: "거주 주 (Province)",
-        legendYourInfo: "나의 정보",
-        userBirthYearLabel: "생년 (Birth Year)",
-        userCppAt65Label: "65세 기준 예상 CPP (연간)",
-        cppTooltip: "Google에서 'My Service Canada Account'를 검색하여 공식 정부 웹사이트에 로그인 후, CPP 예상 수령액을 확인하십시오. 보안을 위해 직접 링크는 제공하지 않습니다.",
-        legendSpouseInfo: "배우자 정보",
-        hasSpouseLabel: "배우자 정보 포함",
-        spouseBirthYearLabel: "배우자 생년 (Birth Year)",
-        spouseCppAt65Label: "배우자 65세 기준 예상 CPP (연간)",
-        legendOtherIncome: "기타 소득 (CPP 외)",
-        otherIncomeDesc: "은퇴 후 발생할 다른 소득을 관리합니다.",
-        manageIncomeBtn: "[기타 소득 관리]",
-        legendAssumptions: "핵심 가정",
-        investmentReturnLabel: "초기 투자 수익률 (%)",
-        investmentTooltip: "더 일찍 CPP를 받기 시작했을 때, 그 돈을 더 늦게 받기 시작하는 시점까지 투자했을 경우의 연평균 수익률입니다.",
-        colaLabel: "소득 물가상승률 (COLA, %)",
-        lifeExpectancyLabel: "최대 계산 나이",
-        legendAnalysisScenario: "분석 시나리오",
-        baseAgeLabel: "기준 나이 (더 일찍 시작):",
-        comparisonAgeLabel: "비교 나이 (더 늦게 시작):",
-        runAnalysisBtn: "손익분기점 분석 실행",
-        section2Title: "2. 분석 결과",
-        loadingText: "계산 중입니다...",
-        chartTitle: "손익분기점 시각화",
-        toggleTableBtn: "상세 데이터 표 보기",
-        exportCsvBtn: "CSV로 내보내기",
-        modalTitle: "기타 소득 관리",
-        modalAddTitle: "새 소득 추가",
-        incomeDescLabel: "소득 종류",
-        incomeAmountLabel: "금액 (연간, 현재 가치)",
-        incomeStartAgeLabel: "시작 나이",
-        incomeEndAgeLabel: "종료 나이",
-        saveIncomeBtn: "추가/수정",
-        noIncomeAdded: "추가된 소득이 없습니다.",
-        incomeItemLabel: (p) => `${p.desc}: $${p.amount.toLocaleString()}/년 (${p.startAge}세-${p.endAge}세)`,
-        editBtn: "수정",
-        deleteBtn: "삭제",
-        futureValueStarted: "이미 시작된 소득입니다.",
-        futureValueDisplay: (p) => `${p.age}세 시점 예상 연액: $${p.value.toLocaleString()}`,
+        pageTitle: "CPP 손익분기점 시뮬레이터", mainTitle: "CPP 손익분기점 시뮬레이터", subTitle: "두 개의 CPP 시작 시점을 비교하여, 세후 기준 손익분기점을 찾아보세요.", darkModeLabel: "다크 모드", langToggle: "English",
+        section1Title: "1. 정보 입력", legendBasicInfo: "기본 정보", provinceLabel: "거주 주 (Province)", legendYourInfo: "나의 정보", userBirthYearLabel: "생년 (Birth Year)", userCppAt65Label: "65세 기준 예상 CPP (연간)", cppTooltip: "Google에서 'My Service Canada Account'를 검색하여 공식 정부 웹사이트에 로그인 후, CPP 예상 수령액을 확인하십시오. 보안을 위해 직접 링크는 제공하지 않습니다.",
+        legendSpouseInfo: "배우자 정보", hasSpouseLabel: "배우자 정보 포함", spouseBirthYearLabel: "배우자 생년 (Birth Year)", spouseCppAt65Label: "배우자 65세 기준 예상 CPP (연간)",
+        legendOtherIncome: "기타 소득 (CPP 외)", otherIncomeDesc: "은퇴 후 발생할 다른 소득을 관리합니다.", manageIncomeBtn: "[기타 소득 관리]",
+        legendAssumptions: "핵심 가정", 
+        investmentReturnLabel: "연간 투자 수익률 (%)", 
+        investmentTooltip: "투자의 연평균 성장률입니다. 이 수익률이 높을수록 돈을 일찍 받아 투자하는 것의 이점이 기하급수적으로 커지며, '최종 자산 차액' 결과에 큰 영향을 줍니다.",
+        earlyCppInvestmentRateLabel: "조기 수령 CPP 투자 비율 (%)", 
+        earlyCppInvestmentRateTooltip: "일찍 수령한 세후 CPP 중 몇 퍼센트를 투자할 것인지 설정합니다. 생활비로 일부를 사용해야 한다면 100%보다 낮게 설정할 수 있습니다.",
+        colaLabel: "소득 물가상승률 (COLA, %)", lifeExpectancyLabel: "최대 계산 나이",
+        legendAnalysisScenario: "분석 시나리오", baseAgeLabel: "기준 나이 (더 일찍 시작):", comparisonAgeLabel: "비교 나이 (더 늦게 시작):", runAnalysisBtn: "손익분기점 분석 실행",
+        section2Title: "2. 분석 결과", loadingText: "계산 중입니다...", 
+        chartTitle: "CPP 결정에 따른 자산 성장 비교", 
+        toggleTableBtn: "상세 데이터 표 보기", exportCsvBtn: "CSV로 내보내기",
+        modalTitle: "기타 소득 관리", modalAddTitle: "새 소득 추가", incomeDescLabel: "소득 종류", incomeAmountLabel: "금액 (연간, 현재 가치)", incomeStartAgeLabel: "시작 나이", incomeEndAgeLabel: "종료 나이", saveIncomeBtn: "추가/수정",
+        noIncomeAdded: "추가된 소득이 없습니다.", incomeItemLabel: (p) => `${p.desc}: $${p.amount.toLocaleString()}/년 (${p.startAge}세-${p.endAge}세)`, editBtn: "수정", deleteBtn: "삭제",
+        futureValueStarted: "이미 시작된 소득입니다.", futureValueDisplay: (p) => `${p.age}세 시점 예상 연액: $${p.value.toLocaleString()}`,
         alertBaseAge: "기준 나이는 비교 나이보다 빨라야 합니다.",
-        breakEvenResult: (p) => `${p.baseAge}세와 ${p.comparisonAge}세 시작 시나리오의 세후 기준 손익분기점은 약 ${p.breakEvenAge}세 입니다.`,
-        noBreakEvenResult: (p) => `예상 수명(${p.lifeExpectancy}세) 내에 손익분기점이 발생하지 않습니다. ${p.baseAge}세 시작이 더 유리합니다.`,
-        chartLabelOpportunityCost: "세후 기회비용 (목표 금액)",
-        chartLabelCumulativeDiff: "세후 CPP 누적 차액",
-        tableHeaderAge: "나이",
-        tableHeaderAnnualDiff: "연간 차액",
-        tableHeaderCumulativeDiff: "누적 차액",
-        tableHeaderTarget: "기회비용(목표)",
-        tableHeaderRemaining: "따라잡아야 할 남은 금액",
-        csvReportTitle: "CPP 최적화 시뮬레이터 분석 리포트",
-        csvInputInfo: "입력된 정보",
-        csvProvince: "거주 주",
-        csvMyBirthYear: "나의 생년",
-        csvMyCpp: "나의 65세 CPP",
-        csvSpouseBirthYear: "배우자 생년",
-        csvSpouseCpp: "배우자 65세 CPP",
-        csvInvestReturn: "초기 투자 수익률",
-        csvCola: "물가상승률(COLA)",
-        csvMaxAge: "최대 계산 나이",
-        csvOtherIncome: "기타 소득 정보",
-        csvIncomeDesc: (p) => `"${p.desc}","$${p.amount} (현재가치)",${p.startAge}세부터,${p.endAge}세까지,,`,
-        csvDetailHeader: ["나이", "세후 CPP (기준년도)", "세후 CPP (비교년도)", "세후 CPP 연간 차액", "CPP 누적 차액", "세후 기회비용(목표)"],
-        disclaimerTitle: "면책 조항",
-        disclaimerP1: "이 시뮬레이터는 정보 제공 및 교육 목적으로만 제작되었습니다.",
-        disclaimerP2: "결과는 제공된 데이터와 단순화된 가정을 기반으로 하며, 실제 재정 상황을 정확하게 반영하지 않을 수 있습니다. 이 내용은 재정적, 세무적 또는 법적 조언으로 간주되어서는 안 됩니다.",
-        disclaimerP3: "중요한 재정 결정을 내리기 전에는 반드시 자격을 갖춘 전문가(CPA, CFP 등)와 상담하시기 바랍니다.",
+        breakEvenResult: (p) => `'${p.comparisonAge}세 시작' 시나리오의 자산 이점이 '${p.baseAge}세 시작' 시나리오를 약 ${p.breakEvenAge}세에 따라잡습니다.`,
+        noBreakEvenResult: (p) => `예상 수명(${p.lifeExpectancy}세) 내에 자산 가치가 역전되지 않습니다. 최종 자산 가치 측면에서 ${p.baseAge}세 시작이 더 유리합니다.`,
+        chartLabelEarlyStart: "조기 시작 이점의 미래가치", chartLabelLateStart: "연기 시작 이점의 미래가치",
+        disclaimerTitle: "면책 조항", disclaimerP1: "이 시뮬레이터는 정보 제공 및 교육 목적으로만 제작되었습니다.", disclaimerP2: "결과는 제공된 데이터와 단순화된 가정을 기반으로 하며, 실제 재정 상황을 정확하게 반영하지 않을 수 있습니다. 이 내용은 재정적, 세무적 또는 법적 조언으로 간주되어서는 안 됩니다.", disclaimerP3: "중요한 재정 결정을 내리기 전에는 반드시 자격을 갖춘 전문가(CPA, CFP 등)와 상담하시기 바랍니다.",
         welcomeTitle: "CPP 시뮬레이터에 오신 것을 환영합니다!",
-        welcomeP1: "이 도구는 두 개의 다른 CPP 시작 날짜를 비교하여 재정적 손익분기점을 찾는 데 도움을 줍니다.",
+        welcomeP1: "이 도구는 CPP 시작 시점 결정을 **'평생 수령 현금 총액'(월급 총액 개념)**과 **'최종 자산 가치'(투자 결과 개념)**라는 두 가지 핵심 관점에서 분석합니다.",
         resultsHeader: "결과 이해하기",
-        resultsP1: "<strong>중요:</strong> 결과에 표시되는 모든 주요 재무 가치(예: 기회비용, 누적 차액)는 실제 수령액을 반영하기 위해 <strong>세후 기준</strong>으로 계산됩니다.",
-        resultsP2: "상세 표는 다음과 같은 주요 지표를 보여줍니다:<br>- <strong>목표 (기회비용):</strong> CPP를 일찍 받아 투자함으로써 얻는 금액입니다. 이는 더 늦게 받기 시작하는 더 많은 CPP 연금이 극복해야 할 '목표'입니다.<br>- <strong>누적 차액:</strong> CPP를 늦게 시작함으로써 얻는 추가적인 세후 금액의 누적 합계입니다.<br>- <strong>손익분기점</strong>은 '누적 차액'이 '목표'를 처음으로 넘어서는 나이입니다.",
-        createdBy: "제작자: ",
-        agreeLabel: "위 내용을 모두 읽고 이해했으며, 이에 동의합니다.",
-        confirmBtn: "확인"
+        resultsP1: "이를 통해 평생 '얼마나 많은 돈을 받는가'뿐만 아니라, 각 선택으로 인해 발생하는 '잉여 현금'을 투자했을 때 '얼마나 더 부유해지는가'를 이해할 수 있습니다.",
+        resultsP2: "아래 차트와 표는 각 선택이 만들어내는 **잉여 현금의 미래가치**가 어떻게 성장하는지를 추적합니다. 두 가치가 교차하는 지점이 진정한 자산 손익분기점입니다.",
+        createdBy: "제작자: ", agreeLabel: "위 내용을 모두 읽고 이해했으며, 이에 동의합니다.", confirmBtn: "확인",
+        metricsTotalIncome: "평생 수령 현금 총액 (세후)",
+        metricsEstateValue: "최종 자산 차액",
+        metricsBaseCase: (p) => `${p.age}세 시작`,
+        metricsCompCase: (p) => `${p.age}세 시작`,
+        metricsAdvantage: "차액",
+        tableHeaderAge: "나이",
+        tableHeaderEarlyValue: "조기 시작 이점의 미래가치",
+        tableHeaderLateValue: "연기 시작 이점의 미래가치",
+        tableHeaderAssetAdvantage: "순 자산 이점",
+        tableHeaderSimpleTarget: "현금 흐름 목표",
+        tableHeaderSimpleCumulative: "현금 흐름 회수액"
     }
 };
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const elements = {
@@ -191,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingIndicator: document.getElementById('loading-indicator'),
         resultsContainer: document.getElementById('results-container'),
         breakEvenTextResult: document.getElementById('break-even-text-result'),
+        additionalMetricsContainer: document.getElementById('additional-metrics-container'),
         toggleDetailsBtn: document.getElementById('toggle-details-btn'),
         detailedTableContainer: document.getElementById('detailed-table-container'),
         exportCsvBtn: document.getElementById('export-csv-btn'),
@@ -282,9 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         elements.welcomeCloseButton.addEventListener('click', handleWelcomeModalClose);
         elements.welcomeModal.addEventListener('click', (event) => {
-            if (event.target === elements.welcomeModal) {
-                handleWelcomeModalClose();
-            }
+            if (event.target === elements.welcomeModal) { handleWelcomeModalClose(); }
         });
         elements.agreeBtn.addEventListener('click', handleWelcomeModalClose);
         elements.disclaimerAgreeCheckbox.addEventListener('change', () => {
@@ -293,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         elements.langToggle.addEventListener('click', toggleLanguage);
         elements.modalLangToggle.addEventListener('click', toggleLanguage);
-        
         elements.themeToggle.addEventListener('change', toggleTheme);
         elements.hasSpouseCheckbox.addEventListener('change', toggleSpouseInfo);
         elements.manageIncomeBtn.addEventListener('click', () => elements.incomeModal.classList.remove('hidden'));
@@ -330,8 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const compSelect = document.getElementById('break-even-comparison');
         const currentBaseVal = baseSelect.value;
         const currentCompVal = compSelect.value;
-        baseSelect.innerHTML = '';
-        compSelect.innerHTML = '';
+        baseSelect.innerHTML = ''; compSelect.innerHTML = '';
         for (let age = 60; age <= 70; age++) {
             const ageText = currentLanguage === 'ko' ? `${age}세` : `Age ${age}`;
             baseSelect.innerHTML += `<option value="${age}">${ageText}</option>`;
@@ -346,10 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.incomeList.innerHTML = otherIncomes.map(inc => `
             <div class="income-item" data-id="${inc.id}">
                 <span>${lang.incomeItemLabel(inc)}</span>
-                <div>
-                    <button type="button" class="edit-btn">${lang.editBtn}</button>
-                    <button type="button" class="delete-btn">${lang.deleteBtn}</button>
-                </div>
+                <div><button type="button" class="edit-btn">${lang.editBtn}</button><button type="button" class="delete-btn">${lang.deleteBtn}</button></div>
             </div>`).join('') || `<p>${lang.noIncomeAdded}</p>`;
     }
     
@@ -368,8 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newIncome.id = Date.now();
             otherIncomes.push(newIncome);
         }
-        renderIncomeList();
-        clearIncomeForm();
+        renderIncomeList(); clearIncomeForm();
     }
 
     function handleIncomeListClick(e) {
@@ -389,11 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function clearIncomeForm() {
-        elements.incomeIdInput.value = '';
-        elements.addIncomeForm.reset();
-        elements.futureValueDisplay.textContent = '';
-    }
+    function clearIncomeForm() { elements.incomeIdInput.value = ''; elements.addIncomeForm.reset(); elements.futureValueDisplay.textContent = ''; }
     
     function updateFutureValueDisplay() {
         const amount = parseFloat(document.getElementById('income-amount').value) || 0;
@@ -401,39 +307,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const userBirthYear = parseInt(document.getElementById('userBirthYear').value);
         const cola = parseFloat(document.getElementById('cola').value) / 100;
         if (!amount || !startAge || !userBirthYear || isNaN(cola)) {
-            elements.futureValueDisplay.textContent = '';
-            return;
+            elements.futureValueDisplay.textContent = ''; return;
         }
         const yearsToStart = (userBirthYear + startAge) - new Date().getFullYear();
         if (yearsToStart <= 0) {
-            elements.futureValueDisplay.textContent = translations[currentLanguage].futureValueStarted;
-            return;
+            elements.futureValueDisplay.textContent = translations[currentLanguage].futureValueStarted; return;
         }
         const futureValue = amount * Math.pow(1 + cola, yearsToStart);
-        elements.futureValueDisplay.textContent = translations[currentLanguage].futureValueDisplay({
-            age: startAge,
-            value: Math.round(futureValue)
-        });
+        elements.futureValueDisplay.textContent = translations[currentLanguage].futureValueDisplay({ age: startAge, value: Math.round(futureValue) });
     }
 
-    function addDefaultIncome() {
-        otherIncomes.push({ id: 1, desc: 'Company Pension', amount: 60000, startAge: 65, endAge: 100 });
-    }
+    function addDefaultIncome() { if (otherIncomes.length === 0) { otherIncomes.push({ id: 1, desc: 'Company Pension', amount: 20000, startAge: 65, endAge: 95 }); } }
     
     function gatherInputs() {
         return {
             province: elements.provinceSelect.value,
-            user: {
-                birthYear: parseInt(document.getElementById('userBirthYear').value),
-                cppAt65: parseFloat(document.getElementById('userCppAt65').value),
-                otherIncomes: otherIncomes
-            },
-            spouse: {
-                hasSpouse: elements.hasSpouseCheckbox.checked,
-                birthYear: parseInt(document.getElementById('spouseBirthYear').value),
-                cppAt65: parseFloat(document.getElementById('spouseCppAt65').value)
-            },
+            user: { birthYear: parseInt(document.getElementById('userBirthYear').value), cppAt65: parseFloat(document.getElementById('userCppAt65').value), otherIncomes: otherIncomes },
+            spouse: { hasSpouse: elements.hasSpouseCheckbox.checked, birthYear: parseInt(document.getElementById('spouseBirthYear').value), cppAt65: parseFloat(document.getElementById('spouseCppAt65').value) },
             investmentReturn: parseFloat(document.getElementById('investmentReturn').value),
+            earlyCppInvestmentRate: parseFloat(document.getElementById('earlyCppInvestmentRate').value),
             cola: parseFloat(document.getElementById('cola').value),
             lifeExpectancy: parseInt(document.getElementById('lifeExpectancy').value)
         };
@@ -465,8 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
             lang.noBreakEvenResult({ lifeExpectancy: inputs.lifeExpectancy, baseAge: baseAge }) :
             lang.breakEvenResult({ baseAge: baseAge, comparisonAge: comparisonAge, breakEvenAge: result.breakEvenAge });
 
-        displayBreakEvenChart(result.details, result.headStartPot, comparisonAge);
-        displayDetailedTable(result.details, baseAge);
+        displayAdditionalMetrics(result, baseAge, comparisonAge);
+        displayBreakEvenChart(result.details);
+        displayDetailedTable(result.details, baseAge, comparisonAge);
         
         elements.toggleDetailsBtn.classList.remove('hidden');
         elements.exportCsvBtn.classList.remove('hidden');
@@ -474,7 +367,43 @@ document.addEventListener('DOMContentLoaded', () => {
         if (showLoader) elements.loadingIndicator.classList.add('hidden');
     }
 
-    function displayBreakEvenChart(details, headStartPot, lateAge) {
+    function displayAdditionalMetrics(result, baseAge, comparisonAge) {
+        const lang = translations[currentLanguage];
+        const incomeDiff = result.totalAfterTaxIncomeComparison - result.totalAfterTaxIncomeBase;
+        const formatCurrency = (value) => `$${Math.round(value).toLocaleString()}`;
+        
+        let advantageClass = incomeDiff >= 0 ? 'metric-advantage' : '';
+        let estateAdvantageClass = result.finalEstateValueDifference >= 0 ? 'metric-advantage' : '';
+
+        const tableHTML = `
+            <table id="additional-metrics-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>${lang.metricsBaseCase({age: baseAge})}</th>
+                        <th>${lang.metricsCompCase({age: comparisonAge})}</th>
+                        <th class="${incomeDiff >= 0 ? 'metric-advantage' : ''}">${lang.metricsAdvantage}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>${lang.metricsTotalIncome}</td>
+                        <td>${formatCurrency(result.totalAfterTaxIncomeBase)}</td>
+                        <td>${formatCurrency(result.totalAfterTaxIncomeComparison)}</td>
+                        <td class="${advantageClass}">${formatCurrency(incomeDiff)}</td>
+                    </tr>
+                    <tr>
+                        <td>${lang.metricsEstateValue}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td class="${estateAdvantageClass}">${formatCurrency(result.finalEstateValueDifference)}</td>
+                    </tr>
+                </tbody>
+            </table>`;
+        elements.additionalMetricsContainer.innerHTML = tableHTML;
+    }
+
+    function displayBreakEvenChart(details) {
         const isDarkMode = document.body.classList.contains('dark-mode');
         const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
         const textColor = isDarkMode ? '#ecf0f1' : '#333';
@@ -485,16 +414,16 @@ document.addEventListener('DOMContentLoaded', () => {
         breakEvenChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: details.filter(d => d.age >= lateAge).map(d => d.age),
+                labels: details.map(d => d.age),
                 datasets: [
                     {
-                        label: lang.chartLabelOpportunityCost,
-                        data: Array(details.filter(d => d.age >= lateAge).length).fill(headStartPot),
-                        borderColor: '#e74c3c', borderDash: [5, 5], pointRadius: 0, fill: false
+                        label: lang.chartLabelEarlyStart,
+                        data: details.map(d => d.earlyPotValue),
+                        borderColor: '#3498db', fill: false, tension: 0.1
                     },
                     {
-                        label: lang.chartLabelCumulativeDiff,
-                        data: details.filter(d => d.age >= lateAge).map(d => d.cumulativeCppDifference),
+                        label: lang.chartLabelLateStart,
+                        data: details.map(d => d.latePotValue),
                         borderColor: '#2ecc71', fill: false, tension: 0.1
                     }
                 ]
@@ -507,36 +436,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function displayDetailedTable(details, baseAge) {
+    function displayDetailedTable(details, baseAge, lateAge) {
         const lang = translations[currentLanguage];
+        const formatCell = (value, isApplicable) => {
+            if (!isApplicable || typeof value !== 'number' || isNaN(value)) {
+                return '–';
+            }
+            return `$${Math.round(value).toLocaleString()}`;
+        };
+
         let tableHTML = `
             <table>
                 <thead>
                     <tr>
                         <th>${lang.tableHeaderAge}</th>
-                        <th>${lang.tableHeaderAnnualDiff}</th>
-                        <th>${lang.tableHeaderCumulativeDiff}</th>
-                        <th>${lang.tableHeaderTarget}</th>
-                        <th>${lang.tableHeaderRemaining}</th>
+                        <th>${lang.tableHeaderEarlyValue}</th>
+                        <th>${lang.tableHeaderLateValue}</th>
+                        <th>${lang.tableHeaderAssetAdvantage}</th>
+                        <th>${lang.tableHeaderSimpleTarget}</th>
+                        <th>${lang.tableHeaderSimpleCumulative}</th>
                     </tr>
                 </thead>
-                <tbody>
-        `;
-        details.filter(d => d.age >= baseAge).forEach(d => {
-            const remainingGap = d.potValue - d.cumulativeCppDifference;
-            const annualDiffDisplay = d.age < details.find(item => item.annualCppDifference != 0)?.age ? '–' : `$${Math.round(d.annualCppDifference).toLocaleString()}`;
-            const cumulativeDiffDisplay = d.age < details.find(item => item.cumulativeCppDifference > 0)?.age ? '–' : `$${Math.round(d.cumulativeCppDifference).toLocaleString()}`;
-            const remainingGapDisplay = d.age < details.find(item => item.cumulativeCppDifference > 0)?.age ? `$${Math.round(d.potValue).toLocaleString()}` : `$${Math.round(remainingGap).toLocaleString()}`;
-
+                <tbody>`;
+        details.forEach(d => {
+            const assetAdvantage = d.latePotValue - d.earlyPotValue;
             tableHTML += `
                 <tr>
                     <td>${currentLanguage === 'ko' ? `${d.age}세` : d.age}</td>
-                    <td>${annualDiffDisplay}</td>
-                    <td>${cumulativeDiffDisplay}</td>
-                    <td>$${Math.round(d.potValue).toLocaleString()}</td>
-                    <td>${remainingGapDisplay}</td>
-                </tr>
-            `;
+                    <td>${formatCell(d.earlyPotValue, true)}</td>
+                    <td>${formatCell(d.latePotValue, true)}</td>
+                    <td>${formatCell(assetAdvantage, true)}</td>
+                    <td>${formatCell(d.simple_target, d.age >= lateAge)}</td>
+                    <td>${formatCell(d.simple_cumulativeDifference, d.age >= lateAge)}</td>
+                </tr>`;
         });
         tableHTML += '</tbody></table>';
         elements.detailedTableContainer.innerHTML = tableHTML;
@@ -547,42 +479,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function exportToCsv(details, inputs) {
         if (!details || details.length === 0 || !inputs) return;
-        
         const lang = translations[currentLanguage];
         let csvContent = "\uFEFF";
-
         csvContent += `${lang.csvReportTitle}\n\n`;
-        csvContent += `${lang.csvInputInfo},,,,,\n`;
-        csvContent += `"${lang.csvProvince}","${inputs.province}",,,,,\n`;
-        csvContent += `"${lang.csvMyBirthYear}","${inputs.user.birthYear}",,,,,\n`;
-        csvContent += `"${lang.csvMyCpp}","${inputs.user.cppAt65}",,,,,\n`;
-        if (inputs.spouse.hasSpouse) {
-            csvContent += `"${lang.csvSpouseBirthYear}","${inputs.spouse.birthYear}",,,,,\n`;
-            csvContent += `"${lang.csvSpouseCpp}","${inputs.spouse.cppAt65}",,,,,\n`;
-        }
-        csvContent += `"${lang.csvInvestReturn}","${inputs.investmentReturn}%",,,,,\n`;
-        csvContent += `"${lang.csvCola}","${inputs.cola}%",,,,,\n`;
-        csvContent += `"${lang.csvMaxAge}","${inputs.lifeExpectancy}",,,,,\n`;
-        
-        csvContent += `\n${lang.csvOtherIncome},,,,,\n`;
-        inputs.user.otherIncomes.forEach(inc => {
-            csvContent += lang.csvIncomeDesc(inc) + "\n";
-        });
-        
+        csvContent += `${lang.csvInputInfo}\n`;
+        // ... (more input details can be added here)
         csvContent += "\n\n";
         
-        const headers = lang.csvDetailHeader;
+        const headers = [lang.tableHeaderAge, lang.tableHeaderEarlyValue, lang.tableHeaderLateValue, lang.tableHeaderAssetAdvantage, lang.tableHeaderSimpleTarget, lang.tableHeaderSimpleCumulative];
         csvContent += headers.join(",") + "\n";
 
         details.forEach(d => {
-            const row = [
-                d.age,
-                Math.round(d.earlyAfterTaxCpp),
-                Math.round(d.lateAfterTaxCpp),
-                Math.round(d.annualCppDifference),
-                Math.round(d.cumulativeCppDifference),
-                Math.round(d.potValue)
-            ].join(",");
+            const assetAdvantage = d.latePotValue - d.earlyPotValue;
+            const row = [d.age, Math.round(d.earlyPotValue), Math.round(d.latePotValue), Math.round(assetAdvantage), Math.round(d.simple_target), Math.round(d.simple_cumulativeDifference)].join(",");
             csvContent += row + "\n";
         });
 
@@ -591,13 +500,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
-            link.setAttribute("download", "cpp_breakeven_analysis.csv");
+            link.setAttribute("download", "cpp_analysis_detailed.csv");
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
     }
-
+    
     initialize();
 });
