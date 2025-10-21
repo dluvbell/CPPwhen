@@ -75,17 +75,22 @@
                     <fieldset>
                         <legend data-lang-key="legendAssumptions">Key Assumptions</legend>
                          <div class="form-group">
-                            <label for="investmentReturn" data-lang-key="investmentReturnLabel">Initial Investment Return (%)</label>
+                            <label for="investmentReturn" data-lang-key="investmentReturnLabel">Annual Investment Return (%)</label>
                              <span class="tooltip" data-lang-key-tooltip="investmentTooltip">?</span>
-                            <input type="number" id="investmentReturn" step="0.1" value="11">
+                            <input type="number" id="investmentReturn" step="0.1" value="7">
+                        </div>
+                        <div class="form-group">
+                            <label for="earlyCppInvestmentRate" data-lang-key="earlyCppInvestmentRateLabel">Early CPP Investment Rate (%)</label>
+                            <span class="tooltip" data-lang-key-tooltip="earlyCppInvestmentRateTooltip">?</span>
+                            <input type="number" id="earlyCppInvestmentRate" step="1" value="100">
                         </div>
                         <div class="form-group">
                             <label for="cola" data-lang-key="colaLabel">Cost of Living Adj. (COLA, %)</label>
-                            <input type="number" id="cola" step="0.1" value="3">
+                            <input type="number" id="cola" step="0.1" value="2.5">
                         </div>
                         <div class="form-group">
                             <label for="lifeExpectancy" data-lang-key="lifeExpectancyLabel">Maximum Calculation Age</label>
-                            <input type="number" id="lifeExpectancy" value="100">
+                            <input type="number" id="lifeExpectancy" value="95">
                         </div>
                     </fieldset>
                      <fieldset>
@@ -111,8 +116,12 @@
                 </div>
                 <div id="results-container" class="hidden">
                     <div id="break-even-result">
-                         <p id="break-even-text-result"></p>
-                         <div class="chart-container">
+                        <p id="break-even-text-result"></p>
+                        
+                        <div id="additional-metrics-container">
+                            </div>
+
+                        <div class="chart-container">
                             <h3 data-lang-key="chartTitle">Break-Even Visualization</h3>
                             <canvas id="breakEvenChart"></canvas>
                         </div>
