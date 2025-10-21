@@ -182,11 +182,39 @@ button.delete-btn { background-color: var(--danger-color); }
 
 /* --- 결과 섹션 --- */
 #break-even-result { margin-top: 1.5rem; padding: 1.5rem; background: var(--bg-color); border-radius: 8px; }
-#break-even-text-result { font-size: 1.2rem; font-weight: 600; text-align: center; margin-bottom: 1.5rem; }
+#break-even-text-result { font-size: 1.2rem; font-weight: 600; text-align: center; }
 .chart-container { margin: 2rem 0; position: relative; }
 #loading-indicator { text-align: center; padding: 2rem; font-size: 1.1rem; color: var(--text-secondary); }
 .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: var(--primary-color); animation: spin 1s linear infinite; margin: 1rem auto; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+#additional-metrics-container {
+    margin: 1.5rem auto;
+    max-width: 500px;
+}
+#additional-metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+#additional-metrics-table th, #additional-metrics-table td {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    text-align: right;
+}
+#additional-metrics-table th {
+    background-color: var(--bg-color);
+    text-align: center;
+    font-weight: 600;
+}
+#additional-metrics-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+}
+#additional-metrics-table .metric-advantage {
+    font-weight: bold;
+    color: var(--success-color);
+}
 
 .table-controls { display: flex; gap: 1rem; margin-top: 1.5rem; }
 .table-controls button { background-color: var(--secondary-color); }
