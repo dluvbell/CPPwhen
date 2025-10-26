@@ -1,7 +1,7 @@
 /**
  * @project     Comprehensive Retirement Simulator
  * @author      dluvbell (https://github.com/dluvbell)
- * @version     2.5.1 (Fix: Prevent D3 NaN errors by drawing chart only when visible)
+ * @version     2.6.0 (Feat: Include all input parameters in CSV export for verification)
  * @file        uiResultsDisplay.js
  * @created     2025-10-25
  * @description Handles running the simulation and displaying results (metrics, table, CSV export, D3 graph).
@@ -274,11 +274,112 @@ function displayComparisonDetailedTable(results) {
 
 
 function exportToCsv(results, inputsA, inputsB) {
-     if (!results || (!results.resultsA && !results.resultsB)) { console.error("No results to export."); return; }
+     if (!results || (!results.resultsA && !results.resultsB) || !inputsA || !inputsB) { console.error("No results or inputs to export."); return; }
     const lang = translations[currentLanguage]; // Assumes global currentLanguage
     const resultsA = results.resultsA || [];
     const resultsB = results.resultsB || [];
 
+    // --- *** MODIFICATION START v2.6.0: Add Input Parameters Section *** ---
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // Helper function to create a CSV row
+    const addCsvRow = (param, valA, valB) => {
+        const cleanParam = `"${String(param || '').replace(/"/g, '""')}"`;
+        const cleanValA = `"${String(valA ?? 'N/A').replace(/"/g, '""')}"`;
+        const cleanValB = `"${String(valB ?? 'N/A').replace(/"/g, '""')}"`;
+        return `${cleanParam},${cleanValA},${cleanValB}\r\n`;
+    };
+
+    // Helper to format percentage values
+    const formatPercent = (val) => (val !== undefined && val !== null) ? val * 100 : 'N/A';
+
+    csvContent += "Input Parameters\r\n";
+    csvContent += "Parameter,Scenario A,Scenario B\r\n";
+
+    // Basic Info
+    csvContent += addCsvRow(lang.provinceLabel, inputsA.province, inputsB.province);
+    csvContent += addCsvRow(lang.lifeExpectancyLabel, inputsA.lifeExpectancy, inputsB.lifeExpectancy);
+    csvContent += addCsvRow(lang.retirementAgeLabel, inputsA.scenario.retirementAge, inputsB.scenario.retirementAge);
+    csvContent += addCsvRow(lang.colaLabel, formatPercent(inputsA.cola), formatPercent(inputsB.cola));
+    csvContent += "\r\n";
+
+    // User Info
+    const userA = inputsA.scenario.user || {};
+    const userB = inputsB.scenario.user || {};
+    csvContent += addCsvRow(`--- ${lang.dataEntryMe} ---`, "", "");
+    csvContent += addCsvRow(lang.userBirthYearLabel, userA.birthYear, userB.birthYear);
+    csvContent += addCsvRow(lang.cppStartAgeLabel, userA.cppStartAge, userB.cppStartAge);
+    csvContent += addCsvRow(lang.userCppAt65Label, userA.cppAt65, userB.cppAt65);
+    csvContent += addCsvRow(lang.oasStartAgeLabel, userA.oasStartAge, userB.oasStartAge);
+    
+    // User Assets
+    csvContent += addCsvRow(`${lang.dataEntryMe} ${lang.assetRRSP}`, userA.assets?.rrsp, userB.assets?.rrsp);
+    csvContent += addCsvRow(`${lang.dataEntryMe} ${lang.assetTFSA}`, userA.assets?.tfsa, userB.assets?.tfsa);
+    csvContent += addCsvRow(`${lang.dataEntryMe} ${lang.assetNonReg}`, userA.assets?.nonreg, userB.assets?.nonreg);
+    csvContent += addCsvRow(`${lang.dataEntryMe} ${lang.assetNonRegACB}`, userA.assets?.nonreg_acb, userB.assets?.nonreg_acb);
+    csvContent += addCsvRow(`${lang.dataEntryMe} ${lang.assetLIF}`, userA.assets?.lif, userB.assets?.lif);
+    csvContent += "\r\n";
+
+    // Spouse Info
+    const spouseA = inputsA.scenario.spouse || {};
+    const spouseB = inputsB.scenario.spouse || {};
+    csvContent += addCsvRow(`--- ${lang.dataEntrySpouse} ---`, "", "");
+    csvContent += addCsvRow(lang.hasSpouseLabel, spouseA.hasSpouse, spouseB.hasSpouse);
+    if (spouseA.hasSpouse || spouseB.hasSpouse) {
+        csvContent += addCsvRow(lang.userBirthYearLabel, spouseA.data?.birthYear, spouseB.data?.birthYear);
+        csvContent += addCsvRow(lang.cppStartAgeLabel, spouseA.data?.cppStartAge, spouseB.data?.cppStartAge);
+        csvContent += addCsvRow(lang.userCppAt65Label, spouseA.data?.cppAt65, spouseB.data?.cppAt65);
+        csvContent += addCsvRow(lang.oasStartAgeLabel, spouseA.data?.oasStartAge, spouseB.data?.oasStartAge);
+        // Spouse Assets
+        csvContent += addCsvRow(`${lang.dataEntrySpouse} ${lang.assetRRSP}`, spouseA.data?.assets?.rrsp, spouseB.data?.assets?.rrsp);
+        csvContent += addCsvRow(`${lang.dataEntrySpouse} ${lang.assetTFSA}`, spouseA.data?.assets?.tfsa, spouseB.data?.assets?.tfsa);
+        csvContent += addCsvRow(`${lang.dataEntrySpouse} ${lang.assetNonReg}`, spouseA.data?.assets?.nonreg, spouseB.data?.assets?.nonreg);
+        csvContent += addCsvRow(`${lang.dataEntrySpouse} ${lang.assetNonRegACB}`, spouseA.data?.assets?.nonreg_acb, spouseB.data?.assets?.nonreg_acb);
+        csvContent += addCsvRow(`${lang.dataEntrySpouse} ${lang.assetLIF}`, spouseA.data?.assets?.lif, spouseB.data?.assets?.lif);
+    }
+    csvContent += "\r\n";
+
+    // Growth Rates
+    csvContent += addCsvRow(`--- ${lang.legendGrowthAssumptionsIncome} ---`, "", "");
+    csvContent += addCsvRow(lang.returnRRSP, formatPercent(inputsA.scenario.returns?.rrsp), formatPercent(inputsB.scenario.returns?.rrsp));
+    csvContent += addCsvRow(lang.returnTFSA, formatPercent(inputsA.scenario.returns?.tfsa), formatPercent(inputsB.scenario.returns?.tfsa));
+    csvContent += addCsvRow(lang.returnNonReg, formatPercent(inputsA.scenario.returns?.nonreg), formatPercent(inputsB.scenario.returns?.nonreg));
+    csvContent += addCsvRow(lang.returnLIF, formatPercent(inputsA.scenario.returns?.lif), formatPercent(inputsB.scenario.returns?.lif));
+    csvContent += "\r\n";
+
+    // Withdrawal Strategy
+    csvContent += addCsvRow(`--- ${lang.withdrawalStrategyTitle} ---`, "", "");
+    for (let i = 1; i <= 3; i++) {
+        const phaseA = inputsA.scenario.withdrawalStrategy[i - 1] || {};
+        const phaseB = inputsB.scenario.withdrawalStrategy[i - 1] || {};
+        const phaseTitle = lang[`phase${i}Title`] || `Phase ${i}`;
+        csvContent += addCsvRow(`${phaseTitle} ${lang.phaseStartAge}`, phaseA.startAge, phaseB.startAge);
+        csvContent += addCsvRow(`${phaseTitle} ${lang.phaseEndAge}`, phaseA.endAge, phaseB.endAge);
+        csvContent += addCsvRow(`${phaseTitle} ${lang.phaseExpenses}`, phaseA.expenses, phaseB.expenses);
+        csvContent += addCsvRow(`${phaseTitle} ${lang.withdrawalOrder}`, (phaseA.order || []).join(' -> '), (phaseB.order || []).join(' -> '));
+    }
+    csvContent += "\r\n";
+
+    // Other Incomes (Scenario A)
+    csvContent += addCsvRow(`--- ${lang.legendOtherIncome} (Scenario A) ---`, "", "");
+    csvContent += "Owner,Type,Amount(PV),Start Age,End Age,COLA (%)\r\n";
+    const incomesA = [...(userA.otherIncomes || []).map(i => ({...i, owner: lang.dataEntryMe})), ...((spouseA.data?.otherIncomes || []).map(i => ({...i, owner: lang.dataEntrySpouse})))];
+    incomesA.forEach(inc => { csvContent += `"${inc.owner}","${inc.desc}","${inc.amount}","${inc.startAge}","${inc.endAge}","${formatPercent(inc.cola)}"\r\n`; });
+    csvContent += "\r\n";
+
+    // Other Incomes (Scenario B)
+    csvContent += addCsvRow(`--- ${lang.legendOtherIncome} (Scenario B) ---`, "", "");
+    csvContent += "Owner,Type,Amount(PV),Start Age,End Age,COLA (%)\r\n";
+    const incomesB = [...(userB.otherIncomes || []).map(i => ({...i, owner: lang.dataEntryMe})), ...((spouseB.data?.otherIncomes || []).map(i => ({...i, owner: lang.dataEntrySpouse})))];
+    incomesB.forEach(inc => { csvContent += `"${inc.owner}","${inc.desc}","${inc.amount}","${inc.startAge}","${inc.endAge}","${formatPercent(inc.cola)}"\r\n`; });
+    csvContent += "\r\n";
+
+    // --- End of Input Parameters Section ---
+
+
+    // --- Start of Year-by-Year Data Section ---
+    csvContent += "Year-by-Year Data\r\n";
+    
     // Determine age range
     const agesA = resultsA.map(d => d?.userAge).filter(age => age !== undefined);
     const agesB = resultsB.map(d => d?.userAge).filter(age => age !== undefined);
@@ -316,7 +417,6 @@ function exportToCsv(results, inputsA, inputsB) {
     ];
 
     // Build CSV header
-    let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += csvCols.map(c => `"${c.label}"`).join(",") + "\r\n";
 
     // Helper to safely get nested values
