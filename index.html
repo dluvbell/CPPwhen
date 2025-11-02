@@ -314,19 +314,23 @@
                         <button id="runOptimizationBtn" type="button" data-lang-key="runOptimizationBtn">Run Optimization Comparison</button>
                     </div>
                     
-                    <div class="form-group monte-carlo-controls" style="text-align: center; margin: 1rem 0 2rem 0; display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                        <button id="runMonteCarloBtn" type="button" data-lang-key="runMonteCarloBtn">Run Monte Carlo</button>
-                        <div>
-                            <label for="monteCarloRunsSelect" data-lang-key="monteCarloRunsLabel" style="margin-bottom: 0.25rem; font-size: 0.9em;">Simulation Runs:</label>
-                            <select id="monteCarloRunsSelect">
-                                <option value="1000">1,000</option>
-                                <option value="5000">5,000</option>
-                                <option value="10000" selected>10,000</option>
-                                <option value="50000">50,000</option>
-                            </select>
+                    <div class="form-group monte-carlo-controls" style="text-align: center; margin: 1rem 0 2rem 0; display: flex; justify-content: center; align-items: flex-end; gap: 0.5rem; flex-wrap: wrap;">
+                        <div class="mc-group">
+                            <button id="runMonteCarloBtn" type="button" data-lang-key="runMonteCarloBtn">Run Monte Carlo</button>
+                            <div>
+                                <label for="monteCarloRunsSelect" data-lang-key="monteCarloRunsLabel" style="margin-bottom: 0.25rem; font-size: 0.9em;">Simulation Runs:</label>
+                                <select id="monteCarloRunsSelect">
+                                    <option value="1000">1,000</option>
+                                    <option value="5000">5,000</option>
+                                    <option value="10000" selected>10,000</option>
+                                    <option value="50000">50,000</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <div style="border-left: 2px solid var(--primary-color); padding-left: 1rem; margin-left: 0.5rem;">
+                        <div class="mc-separator"></div>
+
+                        <div class="mc-group">
                             <button id="runOptimizedMonteCarloBtn" type="button" data-lang-key="runOptimizedMonteCarloBtn">Run Optimized MC</button>
                             <div>
                                 <label for="optimizedMonteCarloRunsSelect" data-lang-key="optimizedMonteCarloRunsLabel" style="margin-bottom: 0.25rem; font-size: 0.9em;">Optimized Runs:</label>
@@ -336,7 +340,7 @@
                                 </select>
                             </div>
                         </div>
-                        </div>
+                    </div>
                     <div id="loading-indicator" class="hidden"> <p data-lang-key="loadingText">Calculating...</p> <div class="spinner"></div> </div>
                     <div id="optimizer-loading-indicator" class="hidden">
                          <p id="optimizer-loading-text" data-lang-key="loadingTextOptimizer" style="font-weight: bold; margin-bottom: 0.5rem;">Running Optimization...</p>
