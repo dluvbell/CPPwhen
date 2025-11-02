@@ -208,13 +208,16 @@ button:disabled:hover { background-color: var(--disabled-color); }
 }
 /* *** MODIFICATION END v3.3.0 *** */
 
-/* *** MONTE CARLO (v5.0.0) *** */
+/* *** MONTE CARLO (v5.0.0 / MODIFIED v5.1.1) *** */
 .monte-carlo-controls {
     border: 1px dashed var(--border-color);
     background: var(--bg-color);
     padding: 1rem;
     border-radius: 8px;
     margin-top: 1.5rem !important; /* Override button margin */
+    /* *** MODIFICATION v5.1.1: Align groups to bottom *** */
+    align-items: flex-end;
+    gap: 0.5rem; /* Space between groups */
 }
 #runMonteCarloBtn {
     width: auto;
@@ -237,6 +240,28 @@ button:disabled:hover { background-color: var(--disabled-color); }
     padding: 0.5rem;
     font-size: 0.95rem;
 }
+
+/* *** MODIFICATION START v5.1.1: Add group styles for alignment *** */
+.mc-group {
+    display: flex;
+    align-items: flex-end; /* Aligns button and dropdown wrapper */
+    gap: 0.5rem;
+}
+.mc-group > div { /* The wrapper for label + select */
+    display: flex;
+    flex-direction: column;
+}
+.mc-group > div label {
+    margin-bottom: 0.25rem; /* Align label with dropdown */
+}
+.mc-separator {
+    border-left: 2px solid var(--primary-color);
+    align-self: stretch; /* Makes the line full height */
+    margin: 0 0.5rem; /* Add some spacing */
+    opacity: 0.6;
+}
+/* *** MODIFICATION END v5.1.1 *** */
+
 /* *** END MONTE CARLO *** */
 
 #lang-toggle { background-color: var(--secondary-color); font-size: 0.9rem; padding: 0.5rem 1rem; }
